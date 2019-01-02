@@ -4,7 +4,6 @@ from src.mytoken import MyToken, TokenType
 
 
 class TestLexer(TestCase):
-
     def test_arithmetic(self):
         lexer = Lexer('5 *  341 - 4 / 81*(532 + -7)   51  \n     423 12')
         expected = [MyToken(TokenType.NUMBER, 5, 1), MyToken(TokenType.MUL, None, 1), MyToken(TokenType.NUMBER, 341, 1),

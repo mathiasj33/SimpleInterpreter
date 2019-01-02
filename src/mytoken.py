@@ -1,11 +1,10 @@
 from enum import Enum
 
 
-TokenType = Enum('Token', 'PLUS MINUS MUL DIV POW NUMBER LPAREN RPAREN EOL')
+TokenType = Enum('TokenType', 'PLUS MINUS MUL DIV POW NUMBER LPAREN RPAREN EOL')
 
 
 class MyToken:
-
     def __init__(self, type, value, line):
         self.type = type
         self.value = value
@@ -23,3 +22,4 @@ class MyToken:
 
     def __repr__(self):
         return str(self)
+        # return 'MyToken({}, {}, {})'.format(self.type, self.value, self.line)
