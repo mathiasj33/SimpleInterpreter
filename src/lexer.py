@@ -32,12 +32,13 @@ class Lexer:
             value += int(self.current())
             self.index += 1
         self.index -= 1
-        return MyToken(TokenType.NUMBER, value, self.line)
+        return MyToken(TokenType.NUMBER, str(value), value, self.line)
 
     def match_char(self):
-        type = self.char_to_token_type[self.current()]
-        token = MyToken(type, None, self.line)
-        if type == TokenType.EOL:
+        token_type = self.char_to_token_type[self.current()]
+        token = MyToken(token_type, self.current(), None, self.line)
+        if token_type == TokenType.EOL:
+            token.text = None
             self.line += 1
         return token
 
