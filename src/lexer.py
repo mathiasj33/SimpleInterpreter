@@ -1,6 +1,5 @@
 from src.mytoken import MyToken, TokenType
 
-
 class Lexer:
     def __init__(self, prog):
         self.prog = prog

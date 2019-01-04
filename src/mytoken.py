@@ -23,4 +23,4 @@ class MyToken:
 
     def __repr__(self):
         return str(self)
-        # return 'MyToken({}, {}, {})'.format(self.type, self.value, self.line)
+        # return 'MyToken({}, \'{}\', {}, {})'.format(self.token_type, self.text, self.value, self.line)

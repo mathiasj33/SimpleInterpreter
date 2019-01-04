@@ -3,18 +3,20 @@ from src.syntaxtree import *
 from src.parser import Parser
 from src.mytoken import MyToken, TokenType
 
-
 class TestParser(TestCase):
     def test_arithmetic(self):
         # 5 * 2 + 3 * 8 ^ 4 ^ - 2 * 2 - (1 / 3 - 2)
-        tokens = [MyToken(TokenType.NUMBER, 5, 1), MyToken(TokenType.MUL, None, 1), MyToken(TokenType.NUMBER, 2, 1),
-                  MyToken(TokenType.PLUS, None, 1), MyToken(TokenType.NUMBER, 3, 1), MyToken(TokenType.MUL, None, 1),
-                  MyToken(TokenType.NUMBER, 8, 1), MyToken(TokenType.POW, None, 1), MyToken(TokenType.NUMBER, 4, 1),
-                  MyToken(TokenType.POW, None, 1), MyToken(TokenType.MINUS, None, 1), MyToken(TokenType.NUMBER, 2, 1),
-                  MyToken(TokenType.MUL, None, 1), MyToken(TokenType.NUMBER, 2, 1), MyToken(TokenType.MINUS, None, 1),
-                  MyToken(TokenType.LPAREN, None, 1), MyToken(TokenType.NUMBER, 1, 1), MyToken(TokenType.DIV, None, 1),
-                  MyToken(TokenType.NUMBER, 3, 1), MyToken(TokenType.MINUS, None, 1), MyToken(TokenType.NUMBER, 2, 1),
-                  MyToken(TokenType.RPAREN, None, 1)]
+        tokens = [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.MUL, '*', None, 1),
+                  MyToken(TokenType.NUMBER, '2', 2, 1), MyToken(TokenType.PLUS, '+', None, 1),
+                  MyToken(TokenType.NUMBER, '3', 3, 1), MyToken(TokenType.MUL, '*', None, 1),
+                  MyToken(TokenType.NUMBER, '8', 8, 1), MyToken(TokenType.POW, '^', None, 1),
+                  MyToken(TokenType.NUMBER, '4', 4, 1), MyToken(TokenType.POW, '^', None, 1),
+                  MyToken(TokenType.MINUS, '-', None, 1), MyToken(TokenType.NUMBER, '2', 2, 1),
+                  MyToken(TokenType.MUL, '*', None, 1), MyToken(TokenType.NUMBER, '2', 2, 1),
+                  MyToken(TokenType.MINUS, '-', None, 1), MyToken(TokenType.LPAREN, '(', None, 1),
+                  MyToken(TokenType.NUMBER, '1', 1, 1), MyToken(TokenType.DIV, '/', None, 1),
+                  MyToken(TokenType.NUMBER, '3', 3, 1), MyToken(TokenType.MINUS, '-', None, 1),
+                  MyToken(TokenType.NUMBER, '2', 2, 1), MyToken(TokenType.RPAREN, ')', None, 1)]
         parser = Parser(tokens)
 
         tree = \
@@ -61,4 +63,4 @@ class TestParser(TestCase):
                 )
             )
 
-        self.assertEqual(tree, parser.parse())
+        self.assertEqual(tree, parser.parse_expr())
