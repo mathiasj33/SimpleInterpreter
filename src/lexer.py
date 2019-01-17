@@ -8,12 +8,20 @@ class Lexer:
         self.char_to_token_type = {
             '(': TokenType.LPAREN,
             ')': TokenType.RPAREN,
+            '{': TokenType.LCURLY,
+            '}': TokenType.RCURLY,
             '-': TokenType.MINUS,
             '+': TokenType.PLUS,
             '/': TokenType.DIV,
             '*': TokenType.MUL,
             '^': TokenType.POW,
             '\n': TokenType.EOL
+        }
+        self.keywords = {
+            'print': TokenType.PRINT,
+            'if': TokenType.IF,
+            'else': TokenType.ELSE,
+            'while': TokenType.WHILE
         }
 
     def current(self):
@@ -41,13 +49,16 @@ class Lexer:
             self.line += 1
         return token
 
-    def match_ident(self):
+    def match_ident_or_keyword(self):
         value = ''
         while self.index < len(self.prog) and not (self.current().isspace() or self.current() in self.char_to_token_type):
             value += self.current()
             self.index += 1
         self.index -= 1
-        return MyToken(TokenType.IDENT, value, value, self.line)
+        if value in self.keywords:
+            return MyToken(self.keywords[value], value, None, self.line)
+        else:
+            return MyToken(TokenType.IDENT, value, value, self.line)
 
     def lex(self):
         tokens = []
@@ -57,6 +68,6 @@ class Lexer:
                 tokens.append(self.match_number())
             else:
                 if c in self.char_to_token_type: tokens.append(self.match_char())
-                else: tokens.append(self.match_ident())
+                else: tokens.append(self.match_ident_or_keyword())
             self.advance()
         return tokens
