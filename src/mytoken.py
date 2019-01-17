@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-TokenType = Enum('TokenType', 'PLUS MINUS MUL DIV POW NUMBER LPAREN RPAREN EOL')
+TokenType = Enum('TokenType', 'PLUS MINUS MUL DIV POW NUMBER LPAREN RPAREN EOL IDENT')
 
 
 class MyToken:

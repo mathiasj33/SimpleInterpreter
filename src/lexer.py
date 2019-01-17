@@ -41,6 +41,14 @@ class Lexer:
             self.line += 1
         return token
 
+    def match_ident(self):
+        value = ''
+        while self.index < len(self.prog) and not (self.current().isspace() or self.current() in self.char_to_token_type):
+            value += self.current()
+            self.index += 1
+        self.index -= 1
+        return MyToken(TokenType.IDENT, value, value, self.line)
+
     def lex(self):
         tokens = []
         while self.index < len(self.prog):
@@ -48,6 +56,7 @@ class Lexer:
             if c.isnumeric():
                 tokens.append(self.match_number())
             else:
-                tokens.append(self.match_char())
+                if c in self.char_to_token_type: tokens.append(self.match_char())
+                else: tokens.append(self.match_ident())
             self.advance()
         return tokens
