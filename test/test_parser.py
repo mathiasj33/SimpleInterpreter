@@ -64,3 +64,35 @@ class TestParser(TestCase):
             )
 
         self.assertEqual(tree, parser.parse_expr())
+
+    def test_identifiers(self):
+        # 5 * x + test123 * (7 - asd)
+        tokens = [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.MUL, '*', None, 1),
+                  MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.PLUS, '+', None, 1),
+                  MyToken(TokenType.IDENT, 'test123', 'test123', 1), MyToken(TokenType.MUL, '*', None, 1),
+                  MyToken(TokenType.LPAREN, '(', None, 1),
+                  MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.MINUS, '-', None, 1),
+                  MyToken(TokenType.IDENT, 'asd', 'asd', 1), MyToken(TokenType.RPAREN, ')', None, 1)]
+        parser = Parser(tokens)
+        tree = \
+            Binary(
+                Binary(
+                    Literal(5),
+                    TokenType.MUL,
+                    Identifier('x')
+                ),
+                TokenType.PLUS,
+                Binary(
+                    Identifier('test123'),
+                    TokenType.MUL,
+                    Grouping(
+                        Binary(
+                            Literal(7),
+                            TokenType.MINUS,
+                            Identifier('asd')
+                        )
+                    )
+                )
+            )
+
+        self.assertEqual(tree, parser.parse_expr())

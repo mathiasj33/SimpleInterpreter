@@ -65,3 +65,19 @@ class Literal:
 	def __repr__(self):
 		return str(self)
 
+class Identifier:
+	def __init__(self, name):
+		self.name = name
+
+	def __eq__(self, other):
+		if not isinstance(other, Identifier): return False
+		elif self is other: return True
+		else:
+			return True and self.name == other.name
+
+	def __str__(self):
+		return 'Identifier({})'.format(str(self.name))
+
+	def __repr__(self):
+		return str(self)
+

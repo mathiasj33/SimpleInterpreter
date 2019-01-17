@@ -2,7 +2,8 @@ nodes = [
     'Binary left op right',
     'Unary op expr',
     'Grouping expr',
-    'Literal value'
+    'Literal value',
+    'Identifier name'
 ]
 
 with open('syntaxtree.py', 'w') as f:

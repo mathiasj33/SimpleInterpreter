@@ -8,6 +8,7 @@ class Parser:
         self.index = 0
         self.prefix_functions = {
             TokenType.NUMBER: self.parse_number,
+            TokenType.IDENT: self.parse_identifier,
             TokenType.PLUS: self.parse_prefix_operator,
             TokenType.MINUS: self.parse_prefix_operator,
             TokenType.LPAREN: self.parse_grouping
@@ -58,6 +59,9 @@ class Parser:
             return left
 
     # Pratt parsing functions ('parselets')
+    def parse_identifier(self, token):
+        return Identifier(token.value)
+
     def parse_number(self, token):
         return Literal(token.value)
 
