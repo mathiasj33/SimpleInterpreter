@@ -7,10 +7,13 @@ class Parser:
         self.tokens = tokens
         self.index = 0
         self.prefix_functions = {
-            TokenType.NUMBER: self.parse_number,
+            TokenType.NUMBER: self.parse_literal,
+            TokenType.TRUE: self.parse_literal,
+            TokenType.FALSE: self.parse_literal,
             TokenType.IDENT: self.parse_identifier,
             TokenType.PLUS: self.parse_prefix_operator,
             TokenType.MINUS: self.parse_prefix_operator,
+            TokenType.NOT: self.parse_prefix_logical_operator,
             TokenType.LPAREN: self.parse_grouping
         }
         self.not_prefix_functions = {
@@ -18,7 +21,14 @@ class Parser:
             TokenType.MINUS: (self.parse_infix_operator, Precedences.PLUS, Associativity.LEFT),
             TokenType.MUL: (self.parse_infix_operator, Precedences.MUL, Associativity.LEFT),
             TokenType.DIV: (self.parse_infix_operator, Precedences.MUL, Associativity.LEFT),
-            TokenType.POW: (self.parse_infix_operator, Precedences.POW, Associativity.RIGHT)
+            TokenType.POW: (self.parse_infix_operator, Precedences.POW, Associativity.RIGHT),
+            TokenType.OR: (self.parse_infix_logical_operator, Precedences.OR, Associativity.LEFT),
+            TokenType.AND: (self.parse_infix_logical_operator, Precedences.AND, Associativity.LEFT),
+            TokenType.EQUAL: (self.parse_comparison, Precedences.EQUAL, Associativity.LEFT),
+            TokenType.L: (self.parse_comparison, Precedences.L, Associativity.LEFT),
+            TokenType.LE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
+            TokenType.G: (self.parse_comparison, Precedences.L, Associativity.LEFT),
+            TokenType.GE: (self.parse_comparison, Precedences.L, Associativity.LEFT)
         }
 
     def consume(self):
@@ -62,12 +72,16 @@ class Parser:
     def parse_identifier(self, token):
         return Identifier(token.value)
 
-    def parse_number(self, token):
+    def parse_literal(self, token):
         return Literal(token.value)
 
     def parse_prefix_operator(self, token):
         arg = self.parse_expr(Precedences.PREFIX)
         return Unary(token.token_type, arg)
+
+    def parse_prefix_logical_operator(self, token):
+        arg = self.parse_expr(Precedences.PREFIX)
+        return LogicalUnary(token.token_type, arg)
 
     def parse_grouping(self, token):
         expr = self.parse_expr()
@@ -80,11 +94,25 @@ class Parser:
         right = self.parse_expr(precedence)
         return Binary(left, token.token_type, right)
 
+    def parse_infix_logical_operator(self, left, token, precedence, associativity):
+        precedence = precedence - (1 if associativity == Associativity.RIGHT else 0)
+        right = self.parse_expr(precedence)
+        return LogicalBinary(left, token.token_type, right)
+
+    def parse_comparison(self, left, token, precedence, associativity):
+        precedence = precedence - (1 if associativity == Associativity.RIGHT else 0)
+        right = self.parse_expr(precedence)
+        return Comparison(left, token.token_type, right)
+
 class Precedences:
-    PLUS = 1
-    MUL = 2
-    POW = 3
-    PREFIX = 4
+    OR = 1
+    AND = 2
+    EQUAL = 3
+    L = 4
+    PLUS = 5
+    MUL = 6
+    POW = 7
+    PREFIX = 8
 
 Associativity = Enum('Associativity', 'LEFT RIGHT')
 
