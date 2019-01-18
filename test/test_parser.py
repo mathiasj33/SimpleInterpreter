@@ -96,3 +96,87 @@ class TestParser(TestCase):
             )
 
         self.assertEqual(tree, parser.parse_expr())
+
+    def test_booleans(self):
+        # (x or true and false) and not y or not z = 7 > 5 - 2 and y < 5 and t or 5 + 1 >= 10
+        tokens = \
+            [MyToken(TokenType.LPAREN, '(', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+             MyToken(TokenType.OR, 'or', None, 1), MyToken(TokenType.TRUE, 'true', True, 1),
+             MyToken(TokenType.AND, 'and', None, 1), MyToken(TokenType.FALSE, 'false', False, 1),
+             MyToken(TokenType.RPAREN, ')', None, 1), MyToken(TokenType.AND, 'and', None, 1),
+             MyToken(TokenType.NOT, 'not', None, 1), MyToken(TokenType.IDENT, 'y', 'y', 1),
+             MyToken(TokenType.OR, 'or', None, 1), MyToken(TokenType.NOT, 'not', None, 1),
+             MyToken(TokenType.IDENT, 'z', 'z', 1), MyToken(TokenType.EQUAL, '=', None, 1),
+             MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.G, '>', None, 1),
+             MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.MINUS, '-', None, 1),
+             MyToken(TokenType.NUMBER, '2', 2, 1), MyToken(TokenType.AND, 'and', None, 1),
+             MyToken(TokenType.IDENT, 'y', 'y', 1), MyToken(TokenType.L, '<', None, 1),
+             MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.AND, 'and', None, 1),
+             MyToken(TokenType.IDENT, 't', 't', 1), MyToken(TokenType.OR, 'or', None, 1),
+             MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.PLUS, '+', None, 1),
+             MyToken(TokenType.NUMBER, '1', 1, 1), MyToken(TokenType.GE, '>=', None, 1),
+             MyToken(TokenType.NUMBER, '10', 10, 1)]
+        parser = Parser(tokens)
+        tree = \
+        LogicalBinary(
+            LogicalBinary(
+                LogicalBinary(
+                    Grouping(
+                        LogicalBinary(
+                            Identifier('x'),
+                            TokenType.OR,
+                            LogicalBinary(
+                                Literal(True),
+                                TokenType.AND,
+                                Literal(False)
+                            )
+                        )
+                    ),
+                    TokenType.AND,
+                    LogicalUnary(
+                        TokenType.NOT,
+                        Identifier('y')
+                    )
+                ),
+                TokenType.OR,
+                LogicalBinary(
+                    LogicalBinary(
+                        Comparison(
+                            LogicalUnary(
+                                TokenType.NOT,
+                                Identifier('z')
+                            ),
+                            TokenType.EQUAL,
+                            Comparison(
+                                Literal(7),
+                                TokenType.G,
+                                Binary(
+                                    Literal(5),
+                                    TokenType.MINUS,
+                                    Literal(2)
+                                )
+                            )
+                        ),
+                        TokenType.AND,
+                        Comparison(
+                            Identifier('y'),
+                            TokenType.L,
+                            Literal(5)
+                        )
+                    ),
+                    TokenType.AND,
+                    Identifier('t')
+                )
+            ),
+            TokenType.OR,
+            Comparison(
+                Binary(
+                    Literal(5),
+                    TokenType.PLUS,
+                    Literal(1)
+                ),
+                TokenType.GE,
+                Literal(10)
+            )
+        )
+        self.assertEqual(tree, parser.parse_expr())

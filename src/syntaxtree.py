@@ -81,3 +81,56 @@ class Identifier:
 	def __repr__(self):
 		return str(self)
 
+class LogicalBinary:
+	def __init__(self, left, op, right):
+		self.left = left
+		self.op = op
+		self.right = right
+
+	def __eq__(self, other):
+		if not isinstance(other, LogicalBinary): return False
+		elif self is other: return True
+		else:
+			return True and self.left == other.left and self.op == other.op and self.right == other.right
+
+	def __str__(self):
+		return 'LogicalBinary({}, {}, {})'.format(str(self.left), str(self.op), str(self.right))
+
+	def __repr__(self):
+		return str(self)
+
+class LogicalUnary:
+	def __init__(self, op, expr):
+		self.op = op
+		self.expr = expr
+
+	def __eq__(self, other):
+		if not isinstance(other, LogicalUnary): return False
+		elif self is other: return True
+		else:
+			return True and self.op == other.op and self.expr == other.expr
+
+	def __str__(self):
+		return 'LogicalUnary({}, {})'.format(str(self.op), str(self.expr))
+
+	def __repr__(self):
+		return str(self)
+
+class Comparison:
+	def __init__(self, left, op, right):
+		self.left = left
+		self.op = op
+		self.right = right
+
+	def __eq__(self, other):
+		if not isinstance(other, Comparison): return False
+		elif self is other: return True
+		else:
+			return True and self.left == other.left and self.op == other.op and self.right == other.right
+
+	def __str__(self):
+		return 'Comparison({}, {}, {})'.format(str(self.left), str(self.op), str(self.right))
+
+	def __repr__(self):
+		return str(self)
+
