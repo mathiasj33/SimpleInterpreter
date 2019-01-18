@@ -48,4 +48,13 @@ class TestLexer(TestCase):
         self.assertEqual(expected, lexer.lex())
 
     def test_booleans(self):
-        pass
+        lexer = Lexer('true false trues = true 7 < 12 <= > y>=x or xor and not_ < not true')
+        expected = \
+        [MyToken(TokenType.TRUE, 'true', True, 1), MyToken(TokenType.FALSE, 'false', False, 1), MyToken(TokenType.IDENT, 'trues', 'trues', 1),
+         MyToken(TokenType.EQUAL, '=', None, 1), MyToken(TokenType.TRUE, 'true', True, 1), MyToken(TokenType.NUMBER, '7', 7, 1),
+         MyToken(TokenType.L, '<', None, 1), MyToken(TokenType.NUMBER, '12', 12, 1), MyToken(TokenType.LE, '<=', None, 1),
+         MyToken(TokenType.G, '>', None, 1), MyToken(TokenType.IDENT, 'y', 'y', 1), MyToken(TokenType.GE, '>=', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+         MyToken(TokenType.OR, 'or', None, 1), MyToken(TokenType.IDENT, 'xor', 'xor', 1), MyToken(TokenType.AND, 'and', None, 1),
+         MyToken(TokenType.IDENT, 'not_', 'not_', 1), MyToken(TokenType.L, '<', None, 1), MyToken(TokenType.NOT, 'not', None, 1),
+         MyToken(TokenType.TRUE, 'true', True, 1)]
+        self.assertEqual(expected, lexer.lex())

@@ -17,13 +17,20 @@ class Lexer:
             '^': TokenType.POW,
             '=': TokenType.EQUAL,
             ':': None,  # only needed for :=
+            '<': TokenType.L,
+            '>': TokenType.G,
             '\n': TokenType.EOL
         }
         self.keywords = {
             'print': TokenType.PRINT,
             'if': TokenType.IF,
             'else': TokenType.ELSE,
-            'while': TokenType.WHILE
+            'while': TokenType.WHILE,
+            'true': TokenType.TRUE,
+            'false': TokenType.FALSE,
+            'or': TokenType.OR,
+            'and': TokenType.AND,
+            'not': TokenType.NOT
         }
 
     def current(self):
@@ -47,10 +54,16 @@ class Lexer:
         return MyToken(TokenType.NUMBER, str(value), value, self.line)
 
     def match_char(self):
-        if self.index < len(self.prog) - 1:
-            if self.current() == ':' and self.peek() == '=':
+        if self.index < len(self.prog) - 1 and self.peek() == '=':
+            if self.current() == ':':
                 self.advance()
                 return MyToken(TokenType.ASSIGN, ':=', None, self.line)
+            elif self.current() == '<':
+                self.advance()
+                return MyToken(TokenType.LE, '<=', None, self.line)
+            elif self.current() == '>':
+                self.advance()
+                return MyToken(TokenType.GE, '>=', None, self.line)
 
         token_type = self.char_to_token_type[self.current()]
         token = MyToken(token_type, self.current(), None, self.line)
@@ -60,15 +73,19 @@ class Lexer:
         return token
 
     def match_ident_or_keyword(self):
-        value = ''
+        text = ''
         while self.index < len(self.prog) and self.is_valid_ident_char():
-            value += self.current()
+            text += self.current()
             self.index += 1
         self.index -= 1
-        if value in self.keywords:
-            return MyToken(self.keywords[value], value, None, self.line)
+        if text in self.keywords:
+            token_type = self.keywords[text]
+            value = None
+            if token_type == TokenType.TRUE: value = True
+            elif token_type == TokenType.FALSE: value = False
+            return MyToken(self.keywords[text], text, value, self.line)
         else:
-            return MyToken(TokenType.IDENT, value, value, self.line)
+            return MyToken(TokenType.IDENT, text, text, self.line)
 
     def lex(self):
         tokens = []
