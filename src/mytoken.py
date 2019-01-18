@@ -1,8 +1,7 @@
 from enum import Enum
 
-
-TokenType = Enum('TokenType', 'PLUS MINUS MUL DIV POW NUMBER LPAREN RPAREN EOL IDENT IF ELSE WHILE LCURLY RCURLY PRINT')
-
+TokenType = Enum('TokenType',
+                 'PLUS MINUS MUL DIV POW NUMBER LPAREN RPAREN EOL IDENT IF ELSE WHILE LCURLY RCURLY PRINT ASSIGN EQUAL')
 
 class MyToken:
     def __init__(self, token_type, text, value, line):

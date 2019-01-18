@@ -15,6 +15,8 @@ class Lexer:
             '/': TokenType.DIV,
             '*': TokenType.MUL,
             '^': TokenType.POW,
+            '=': TokenType.EQUAL,
+            ':': None,  # only needed for :=
             '\n': TokenType.EOL
         }
         self.keywords = {
@@ -26,6 +28,9 @@ class Lexer:
 
     def current(self):
         return self.prog[self.index]
+
+    def peek(self):
+        return self.prog[self.index + 1]
 
     def advance(self):
         self.index += 1
@@ -42,6 +47,11 @@ class Lexer:
         return MyToken(TokenType.NUMBER, str(value), value, self.line)
 
     def match_char(self):
+        if self.index < len(self.prog) - 1:
+            if self.current() == ':' and self.peek() == '=':
+                self.advance()
+                return MyToken(TokenType.ASSIGN, ':=', None, self.line)
+
         token_type = self.char_to_token_type[self.current()]
         token = MyToken(token_type, self.current(), None, self.line)
         if token_type == TokenType.EOL:
@@ -51,7 +61,7 @@ class Lexer:
 
     def match_ident_or_keyword(self):
         value = ''
-        while self.index < len(self.prog) and not (self.current().isspace() or self.current() in self.char_to_token_type):
+        while self.index < len(self.prog) and self.is_valid_ident_char():
             value += self.current()
             self.index += 1
         self.index -= 1
@@ -66,8 +76,13 @@ class Lexer:
             c = self.current()
             if c.isnumeric():
                 tokens.append(self.match_number())
+            elif c in self.char_to_token_type:
+                tokens.append(self.match_char())
             else:
-                if c in self.char_to_token_type: tokens.append(self.match_char())
-                else: tokens.append(self.match_ident_or_keyword())
+                tokens.append(self.match_ident_or_keyword())
             self.advance()
         return tokens
+
+    def is_valid_ident_char(self):
+        c = ord(self.current())
+        return 48 <= c <= 57 or 65 <= c <= 90 or 97 <= c <= 122 or c == 95

@@ -39,3 +39,13 @@ class TestLexer(TestCase):
          MyToken(TokenType.RCURLY, '}', None, 2), MyToken(TokenType.WHILE, 'while', None, 2), MyToken(TokenType.LCURLY, '{', None, 2),
          MyToken(TokenType.PRINT, 'print', None, 2), MyToken(TokenType.IDENT, 'printx', 'printx', 2), MyToken(TokenType.IDENT, '_print', '_print', 2)]
         self.assertEqual(expected, lexer.lex())
+
+    def test_assignment(self):
+        lexer = Lexer('x:= 7\nx = 7')
+        expected = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.ASSIGN, ':=', None, 1), MyToken(TokenType.NUMBER, '7', 7, 1),
+                    MyToken(TokenType.EOL, None, None, 1), MyToken(TokenType.IDENT, 'x', 'x', 2), MyToken(TokenType.EQUAL, '=', None, 2),
+                    MyToken(TokenType.NUMBER, '7', 7, 2)]
+        self.assertEqual(expected, lexer.lex())
+
+    def test_booleans(self):
+        pass
