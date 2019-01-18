@@ -186,18 +186,18 @@ class If:
 		return str(self)
 
 class While:
-	def __init__(self, cond, expr):
+	def __init__(self, cond, stmts):
 		self.cond = cond
-		self.expr = expr
+		self.stmts = stmts
 
 	def __eq__(self, other):
 		if not isinstance(other, While): return False
 		elif self is other: return True
 		else:
-			return True and self.cond == other.cond and self.expr == other.expr
+			return True and self.cond == other.cond and self.stmts == other.stmts
 
 	def __str__(self):
-		return 'While({}, {})'.format(str(self.cond), str(self.expr))
+		return 'While({}, {})'.format(str(self.cond), str(self.stmts))
 
 	def __repr__(self):
 		return str(self)

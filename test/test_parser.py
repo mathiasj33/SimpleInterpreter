@@ -208,49 +208,49 @@ class TestParser(TestCase):
     def test_control_structures(self):
         # if x {print y\nx := 6}\nif x < 3 {\nx := 3\n} else if t {\nx := 7\n} else \n{print t\n}\nwhile not (x + y = 3) {print x\nprint t\n}\n
         tokens = [MyToken(TokenType.IF, 'if', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
-                  MyToken(TokenType.LCURLY,'{', None, 1), MyToken(TokenType.PRINT, 'print', None, 1),
+                  MyToken(TokenType.LBRACE,'{', None, 1), MyToken(TokenType.PRINT, 'print', None, 1),
                   MyToken(TokenType.IDENT, 'y', 'y', 1), MyToken(TokenType.EOL, 'None', None, 1),
                   MyToken(TokenType.IDENT, 'x', 'x', 2), MyToken(TokenType.ASSIGN, ':=', None, 2),
-                  MyToken(TokenType.NUMBER, '6', 6, 2), MyToken(TokenType.RCURLY, '}', None, 2),
+                  MyToken(TokenType.NUMBER, '6', 6, 2), MyToken(TokenType.RBRACE, '}', None, 2),
                   MyToken(TokenType.EOL, 'None', None, 2), MyToken(TokenType.IF, 'if', None, 3),
                   MyToken(TokenType.IDENT, 'x', 'x', 3), MyToken(TokenType.L, '<', None, 3),
-                  MyToken(TokenType.NUMBER, '3', 3, 3), MyToken(TokenType.LCURLY, '{', None, 3),
+                  MyToken(TokenType.NUMBER, '3', 3, 3), MyToken(TokenType.LBRACE, '{', None, 3),
                   MyToken(TokenType.EOL, 'None', None, 3), MyToken(TokenType.IDENT, 'x', 'x', 4),
                   MyToken(TokenType.ASSIGN, ':=', None, 4), MyToken(TokenType.NUMBER, '3', 3, 4),
-                  MyToken(TokenType.EOL, 'None', None, 4), MyToken(TokenType.RCURLY, '}', None, 5),
+                  MyToken(TokenType.EOL, 'None', None, 4), MyToken(TokenType.RBRACE, '}', None, 5),
                   MyToken(TokenType.ELSE, 'else', None, 5), MyToken(TokenType.IF, 'if', None, 5),
-                  MyToken(TokenType.IDENT, 't', 't', 5), MyToken(TokenType.LCURLY, '{', None, 5),
+                  MyToken(TokenType.IDENT, 't', 't', 5), MyToken(TokenType.LBRACE, '{', None, 5),
                   MyToken(TokenType.EOL, 'None', None, 5), MyToken(TokenType.IDENT, 'x', 'x', 6),
                   MyToken(TokenType.ASSIGN, ':=', None, 6), MyToken(TokenType.NUMBER, '7', 7, 6),
-                  MyToken(TokenType.EOL, 'None', None, 6), MyToken(TokenType.RCURLY, '}', None, 7),
+                  MyToken(TokenType.EOL, 'None', None, 6), MyToken(TokenType.RBRACE, '}', None, 7),
                   MyToken(TokenType.ELSE, 'else', None, 7), MyToken(TokenType.EOL, 'None', None, 7),
-                  MyToken(TokenType.LCURLY, '{', None, 8), MyToken(TokenType.PRINT, 'print', None, 8),
+                  MyToken(TokenType.LBRACE, '{', None, 8), MyToken(TokenType.PRINT, 'print', None, 8),
                   MyToken(TokenType.IDENT, 't', 't', 8), MyToken(TokenType.EOL, 'None', None, 8),
-                  MyToken(TokenType.RCURLY, '}', None, 9), MyToken(TokenType.EOL, 'None', None, 9),
+                  MyToken(TokenType.RBRACE, '}', None, 9), MyToken(TokenType.EOL, 'None', None, 9),
                   MyToken(TokenType.WHILE, 'while', None, 10), MyToken(TokenType.NOT, 'not', None, 10),
                   MyToken(TokenType.LPAREN, '(', None, 10), MyToken(TokenType.IDENT, 'x', 'x', 10),
                   MyToken(TokenType.PLUS, '+', None, 10), MyToken(TokenType.IDENT, 'y', 'y', 10),
                   MyToken(TokenType.EQUAL, '=', None, 10), MyToken(TokenType.NUMBER, '3', 3, 10),
-                  MyToken(TokenType.RPAREN, ')', None, 10), MyToken(TokenType.LCURLY, '{', None, 10),
+                  MyToken(TokenType.RPAREN, ')', None, 10), MyToken(TokenType.LBRACE, '{', None, 10),
                   MyToken(TokenType.PRINT, 'print', None, 10), MyToken(TokenType.IDENT, 'x', 'x', 10),
                   MyToken(TokenType.EOL, 'None', None, 10), MyToken(TokenType.PRINT, 'print', None, 11),
                   MyToken(TokenType.IDENT, 't', 't', 11), MyToken(TokenType.EOL, 'None', None, 11),
-                  MyToken(TokenType.RCURLY, '}', None, 12), MyToken(TokenType.EOL, 'None', None, 12)]
+                  MyToken(TokenType.RBRACE, '}', None, 12), MyToken(TokenType.EOL, 'None', None, 12)]
         parser = Parser(tokens)
         tree = \
         [
             If(
                 Identifier('x'),
-                [Print('y'), Assign(Identifier('x'), Literal(6))],
+                [Print(Identifier('y')), Assign(Identifier('x'), Literal(6))],
                 []
             ),
             If(
-                LogicalBinary(Identifier('x'), TokenType.L, Literal(3)),
+                Comparison(Identifier('x'), TokenType.L, Literal(3)),
                 [Assign(Identifier('x'), Literal(3))],
-                [If(Identifier('t'), Assign(Identifier('x'), Literal(7)), Print(Identifier('t')))]
+                [If(Identifier('t'), [Assign(Identifier('x'), Literal(7))], [Print(Identifier('t'))])]
             ),
             While(
-                LogicalUnary(TokenType.NOT, Grouping(LogicalBinary(Binary(Identifier('x'), TokenType.PLUS, Identifier('y')), TokenType.EQUAL, Literal(3)))),
+                LogicalUnary(TokenType.NOT, Grouping(Comparison(Binary(Identifier('x'), TokenType.PLUS, Identifier('y')), TokenType.EQUAL, Literal(3)))),
                 [Print(Identifier('x')), Print(Identifier('t'))]
             )
         ]

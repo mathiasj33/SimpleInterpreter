@@ -33,10 +33,10 @@ class TestLexer(TestCase):
     def test_keyword(self):
         lexer = Lexer('if x {}\nelse elses i ifs} while{ print printx _print')
         expected = \
-        [MyToken(TokenType.IF, 'if', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.LCURLY, '{', None, 1),
-         MyToken(TokenType.RCURLY, '}', None, 1), MyToken(TokenType.EOL, None, None, 1), MyToken(TokenType.ELSE, 'else', None, 2),
+        [MyToken(TokenType.IF, 'if', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.LBRACE, '{', None, 1),
+         MyToken(TokenType.RBRACE, '}', None, 1), MyToken(TokenType.EOL, None, None, 1), MyToken(TokenType.ELSE, 'else', None, 2),
          MyToken(TokenType.IDENT, 'elses', 'elses', 2), MyToken(TokenType.IDENT, 'i', 'i', 2), MyToken(TokenType.IDENT, 'ifs', 'ifs', 2),
-         MyToken(TokenType.RCURLY, '}', None, 2), MyToken(TokenType.WHILE, 'while', None, 2), MyToken(TokenType.LCURLY, '{', None, 2),
+         MyToken(TokenType.RBRACE, '}', None, 2), MyToken(TokenType.WHILE, 'while', None, 2), MyToken(TokenType.LBRACE, '{', None, 2),
          MyToken(TokenType.PRINT, 'print', None, 2), MyToken(TokenType.IDENT, 'printx', 'printx', 2), MyToken(TokenType.IDENT, '_print', '_print', 2)]
         self.assertEqual(expected, lexer.lex())
 

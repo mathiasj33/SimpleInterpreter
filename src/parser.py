@@ -36,7 +36,10 @@ class Parser:
         self.index += 1
         return token
 
-    def consume_token(self, token_type):
+    def consume_token(self, token_type, skip_newline=False):
+        if skip_newline:
+            while self.peek().token_type == TokenType.EOL:
+                self.consume()
         if self.peek().token_type != token_type: raise ParseError(self.peek().line, 'Expected {}.'.format(token_type))
         self.consume()
 
@@ -60,14 +63,19 @@ class Parser:
     def parse(self):
         program = []
         while True:
-            if self.peek().token_type == TokenType.IDENT:
+            token_type = self.peek().token_type
+            if token_type == TokenType.IDENT:
                 program.append(self.parse_assignment())
-            elif self.peek().token_type == TokenType.PRINT:
+            elif token_type == TokenType.PRINT:
                 program.append(self.parse_print())
-            elif self.peek().token_type == TokenType.EOL:
+            elif token_type == TokenType.IF:
+                program.append(self.parse_if())
+            elif token_type == TokenType.WHILE:
+                program.append(self.parse_while())
+            elif token_type == TokenType.EOL:
                 self.consume()
             else:
-                raise ParseError(self.peek().line, 'Unrecognized token \'{}\'.'.format(self.peek().text))
+                return program
 
             if self.is_at_end():
                 return program
@@ -80,6 +88,34 @@ class Parser:
     def parse_print(self):
         self.consume_token(TokenType.PRINT)
         return Print(self.parse_expr())
+
+    def parse_if(self):
+        self.consume_token(TokenType.IF)
+        condition = self.parse_expr()
+        self.consume_token(TokenType.LBRACE, skip_newline=True)
+        left = self.parse()
+        self.consume_token(TokenType.RBRACE, skip_newline=True)
+        if self.is_at_end():
+            return If(condition, left, [])
+
+        if self.peek().token_type != TokenType.ELSE:
+            return If(condition, left, [])
+        self.consume()
+        if self.peek().token_type == TokenType.IF:
+            right = [self.parse_if()]
+        else:
+            self.consume_token(TokenType.LBRACE, skip_newline=True)
+            right = self.parse()
+            self.consume_token(TokenType.RBRACE, skip_newline=True)
+        return If(condition, left, right)
+
+    def parse_while(self):
+        self.consume_token(TokenType.WHILE)
+        condition = self.parse_expr()
+        self.consume_token(TokenType.LBRACE, skip_newline=True)
+        stmts = self.parse()
+        self.consume_token(TokenType.RBRACE, skip_newline=True)
+        return While(condition, stmts)
 
     def parse_expr(self, precedence=0):
         token = self.consume()

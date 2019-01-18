@@ -8,8 +8,8 @@ class Lexer:
         self.char_to_token_type = {
             '(': TokenType.LPAREN,
             ')': TokenType.RPAREN,
-            '{': TokenType.LCURLY,
-            '}': TokenType.RCURLY,
+            '{': TokenType.LBRACE,
+            '}': TokenType.RBRACE,
             '-': TokenType.MINUS,
             '+': TokenType.PLUS,
             '/': TokenType.DIV,
