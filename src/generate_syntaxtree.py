@@ -6,7 +6,8 @@ nodes = [
     'Identifier name',
     'LogicalBinary left op right',
     'LogicalUnary op expr',
-    'Comparison left op right'
+    'Comparison left op right',
+    'Assign left right'
 ]
 
 with open('syntaxtree.py', 'w') as f:

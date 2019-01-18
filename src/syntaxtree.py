@@ -134,3 +134,20 @@ class Comparison:
 	def __repr__(self):
 		return str(self)
 
+class Assign:
+	def __init__(self, left, right):
+		self.left = left
+		self.right = right
+
+	def __eq__(self, other):
+		if not isinstance(other, Assign): return False
+		elif self is other: return True
+		else:
+			return True and self.left == other.left and self.right == other.right
+
+	def __str__(self):
+		return 'Assign({}, {})'.format(str(self.left), str(self.right))
+
+	def __repr__(self):
+		return str(self)
+

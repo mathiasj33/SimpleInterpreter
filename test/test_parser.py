@@ -180,3 +180,15 @@ class TestParser(TestCase):
             )
         )
         self.assertEqual(tree, parser.parse_expr())
+
+    def test_assignment(self):
+        # x := 5\ny := not b + 7
+        tokens = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.ASSIGN, ':=', None, 1), MyToken(TokenType.NUMBER, '5', 5, 1),
+                  MyToken(TokenType.EOL, 'None', None, 1), MyToken(TokenType.IDENT, 'y', 'y', 2), MyToken(TokenType.ASSIGN, ':=', None, 2),
+                  MyToken(TokenType.NOT, 'not', None, 2), MyToken(TokenType.IDENT, 'b', 'b', 2), MyToken(TokenType.PLUS, '+', None, 2),
+                  MyToken(TokenType.NUMBER, '7', 7, 2)]
+        parser = Parser(tokens)
+        tree = \
+        [Assign(Identifier('x'), Literal(5)),
+         Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7)))]
+        self.assertEqual(tree, parser.parse())

@@ -36,8 +36,15 @@ class Parser:
         self.index += 1
         return token
 
+    def consume_token(self, token_type):
+        if self.peek().token_type != token_type: raise ParseError(self.peek().line, 'Expected {}.'.format(token_type))
+        self.consume()
+
     def peek(self):
         return self.tokens[self.index]
+
+    def is_at_expr_end(self):
+        return self.is_at_end() or self.peek().token_type == TokenType.EOL
 
     def is_at_end(self):
         return self.index >= len(self.tokens)
@@ -50,6 +57,22 @@ class Parser:
         except KeyError:
             return 0
 
+    def parse(self):
+        program = []
+        while True:
+            if self.peek().token_type == TokenType.IDENT:
+                program.append(self.parse_assignment())
+            elif self.peek().token_type == TokenType.EOL:
+                self.consume()
+
+            if self.is_at_end():
+                return program
+
+    def parse_assignment(self):
+        token = self.consume()
+        self.consume_token(TokenType.ASSIGN)
+        return Assign(self.parse_identifier(token), self.parse_expr())
+
     def parse_expr(self, precedence=0):
         token = self.consume()
         try:
@@ -57,14 +80,14 @@ class Parser:
         except KeyError:
             raise ParseError(token.line, 'Could not parse {}.'.format(token.text))
         left = prefix_function(token)
-        if self.is_at_end():
+        if self.is_at_expr_end():
             return left
         else:
             while precedence < self.get_precedence():
                 token = self.consume()
                 not_prefix_function, function_precedence, associativity = self.not_prefix_functions[token.token_type]
                 left = not_prefix_function(left, token, function_precedence, associativity)
-                if self.is_at_end():
+                if self.is_at_expr_end():
                     return left
             return left
 
