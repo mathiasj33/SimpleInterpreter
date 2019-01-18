@@ -167,3 +167,38 @@ class Print:
 	def __repr__(self):
 		return str(self)
 
+class If:
+	def __init__(self, cond, left, right):
+		self.cond = cond
+		self.left = left
+		self.right = right
+
+	def __eq__(self, other):
+		if not isinstance(other, If): return False
+		elif self is other: return True
+		else:
+			return True and self.cond == other.cond and self.left == other.left and self.right == other.right
+
+	def __str__(self):
+		return 'If({}, {}, {})'.format(str(self.cond), str(self.left), str(self.right))
+
+	def __repr__(self):
+		return str(self)
+
+class While:
+	def __init__(self, cond, expr):
+		self.cond = cond
+		self.expr = expr
+
+	def __eq__(self, other):
+		if not isinstance(other, While): return False
+		elif self is other: return True
+		else:
+			return True and self.cond == other.cond and self.expr == other.expr
+
+	def __str__(self):
+		return 'While({}, {})'.format(str(self.cond), str(self.expr))
+
+	def __repr__(self):
+		return str(self)
+

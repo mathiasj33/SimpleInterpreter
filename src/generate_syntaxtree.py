@@ -8,7 +8,9 @@ nodes = [
     'LogicalUnary op expr',
     'Comparison left op right',
     'Assign left right',
-    'Print expr'
+    'Print expr',
+    'If cond left right',
+    'While cond expr'
 ]
 
 with open('syntaxtree.py', 'w') as f:
