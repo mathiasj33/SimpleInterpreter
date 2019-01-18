@@ -151,3 +151,19 @@ class Assign:
 	def __repr__(self):
 		return str(self)
 
+class Print:
+	def __init__(self, expr):
+		self.expr = expr
+
+	def __eq__(self, other):
+		if not isinstance(other, Print): return False
+		elif self is other: return True
+		else:
+			return True and self.expr == other.expr
+
+	def __str__(self):
+		return 'Print({})'.format(str(self.expr))
+
+	def __repr__(self):
+		return str(self)
+

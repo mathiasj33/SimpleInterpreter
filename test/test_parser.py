@@ -192,3 +192,16 @@ class TestParser(TestCase):
         [Assign(Identifier('x'), Literal(5)),
          Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7)))]
         self.assertEqual(tree, parser.parse())
+
+    def test_print(self):
+        # print x\nprint y and 7 - 2
+        tokens = [MyToken(TokenType.PRINT, 'print', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+                  MyToken(TokenType.EOL, 'None', None, 1), MyToken(TokenType.PRINT, 'print', None, 2),
+                  MyToken(TokenType.IDENT, 'y', 'y', 2), MyToken(TokenType.AND, 'and', None, 2),
+                  MyToken(TokenType.NUMBER, '7', 7, 2), MyToken(TokenType.MINUS, '-', None, 2),
+                  MyToken(TokenType.NUMBER, '2', 2, 2)]
+        parser = Parser(tokens)
+        tree = \
+        [Print(Identifier('x')), Print(LogicalBinary(Identifier('y'), TokenType.AND, Binary(Literal(7), TokenType.MINUS, Literal(2))))]
+        self.assertEqual(tree, parser.parse())
+

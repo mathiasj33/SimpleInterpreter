@@ -62,8 +62,12 @@ class Parser:
         while True:
             if self.peek().token_type == TokenType.IDENT:
                 program.append(self.parse_assignment())
+            elif self.peek().token_type == TokenType.PRINT:
+                program.append(self.parse_print())
             elif self.peek().token_type == TokenType.EOL:
                 self.consume()
+            else:
+                raise ParseError(self.peek().line, 'Unrecognized token \'{}\'.'.format(self.peek().text))
 
             if self.is_at_end():
                 return program
@@ -72,6 +76,10 @@ class Parser:
         token = self.consume()
         self.consume_token(TokenType.ASSIGN)
         return Assign(self.parse_identifier(token), self.parse_expr())
+
+    def parse_print(self):
+        self.consume_token(TokenType.PRINT)
+        return Print(self.parse_expr())
 
     def parse_expr(self, precedence=0):
         token = self.consume()
