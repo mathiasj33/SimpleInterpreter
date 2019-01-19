@@ -138,3 +138,26 @@ class TestInterpreter(TestCase):
             self.assertEqual(output, '5\nfalse')
         finally:
             sys.stdout = saved_stdout
+
+    def test_control_structures(self):
+        # x := 0\nif 2 < 3 {x := 5}
+        tree = \
+            Program([Assign(Identifier('x'), Literal(0)), If(Comparison(Literal(2), TokenType.L, Literal(3)),
+                                                    Program([Assign(Identifier('x'), Literal(5))]), Program([]))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'x': 5}, interpreter.interpret())
+
+        # x := 0\nif 2 > 3 {x := 5}
+        tree = \
+            Program([Assign(Identifier('x'), Literal(0)), If(Comparison(Literal(3), TokenType.L, Literal(2)),
+                                                    Program([Assign(Identifier('x'), Literal(5))]), Program([]))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'x': 0}, interpreter.interpret())
+
+        # x := 0\nwhile x < 10 {x := x + 1}\nb := x = 10
+        tree = \
+            Program([Assign(Identifier('x'), Literal(0)), While(Comparison(Identifier('x'), TokenType.L, Literal(10)),
+                                                       Program([Assign(Identifier('x'), Binary(Identifier('x'), TokenType.PLUS, Literal(1)))])),
+                     Assign(Identifier('b'), Comparison(Identifier('x'), TokenType.EQUAL, Literal(10)))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'x': 10, 'b': True}, interpreter.interpret())

@@ -17,9 +17,9 @@ class Interpreter:
         for stmt in program.stmts:
             stmt.accept(self)
 
-    def visit_assign(self, assign):
-        right = assign.right.accept(self)
-        self.environment[assign.left.name] = right
+    def visit_assign(self, assign_stmt):
+        right = assign_stmt.right.accept(self)
+        self.environment[assign_stmt.left.name] = right
 
     def visit_print(self, print_stmt):
         value = print_stmt.expr.accept(self)
@@ -29,6 +29,17 @@ class Interpreter:
             print('true')
         else:
             print(value)
+
+    def visit_if(self, if_stmt):
+        cond_value = if_stmt.cond.accept(self)
+        if cond_value:
+            if_stmt.left.accept(self)
+        else:
+            if_stmt.right.accept(self)
+
+    def visit_while(self, while_stmt):
+        while while_stmt.cond.accept(self):
+            while_stmt.program.accept(self)
 
     def interpret_expr(self):
         return self.ast.accept(self)
