@@ -52,14 +52,6 @@ class Parser:
     def is_at_end(self):
         return self.index >= len(self.tokens)
 
-    def get_precedence(self):
-        token = self.peek()
-        try:
-            _, precedence, _ = self.not_prefix_functions[token.token_type]
-            return precedence
-        except KeyError:
-            return 0
-
     def parse(self):
         program = []
         while True:
@@ -134,6 +126,14 @@ class Parser:
                 if self.is_at_expr_end():
                     return left
             return left
+
+    def get_precedence(self):
+        token = self.peek()
+        try:
+            _, precedence, _ = self.not_prefix_functions[token.token_type]
+            return precedence
+        except KeyError:
+            return 0
 
     # Pratt parsing functions ('parselets')
     def parse_identifier(self, token):

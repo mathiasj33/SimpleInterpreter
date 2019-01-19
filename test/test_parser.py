@@ -181,6 +181,31 @@ class TestParser(TestCase):
         )
         self.assertEqual(tree, parser.parse_expr())
 
+        # 5 <= 3 = 7 > 5 - 2
+        tokens = [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.LE, '<=', None, 1), MyToken(TokenType.NUMBER, '3', 3, 1),
+                     MyToken(TokenType.EQUAL, '=', None, 1), MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.G, '>', None, 1),
+                     MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.MINUS, '-', None, 1), MyToken(TokenType.NUMBER, '2', 2, 1)]
+        parser = Parser(tokens)
+        tree = \
+            Comparison(
+                Comparison(
+                    Literal(5),
+                    TokenType.LE,
+                    Literal(3)
+                ),
+                TokenType.EQUAL,
+                Comparison(
+                    Literal(7),
+                    TokenType.G,
+                    Binary(
+                        Literal(5),
+                        TokenType.MINUS,
+                        Literal(2)
+                    )
+                )
+            )
+        self.assertEqual(tree, parser.parse_expr())
+
     def test_assignment(self):
         # x := 5\ny := not b + 7
         tokens = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.ASSIGN, ':=', None, 1), MyToken(TokenType.NUMBER, '5', 5, 1),
