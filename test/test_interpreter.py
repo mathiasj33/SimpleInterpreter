@@ -71,3 +71,23 @@ class TestInterpreter(TestCase):
         interpreter = Interpreter(tree, env)
         self.assertEqual(80, interpreter.interpret())
 
+    def test_booleans(self):
+        # not true and false or not false
+        tree = \
+            LogicalBinary(
+                LogicalBinary(
+                    LogicalUnary(
+                        TokenType.NOT,
+                        Literal(True)
+                    ),
+                    TokenType.AND,
+                    Literal(False)
+                ),
+                TokenType.OR,
+                LogicalUnary(
+                    TokenType.NOT,
+                    Literal(False)
+                )
+            )
+        interpreter = Interpreter(tree)
+        self.assertEqual(True, interpreter.interpret())

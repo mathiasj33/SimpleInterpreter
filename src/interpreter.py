@@ -1,6 +1,6 @@
 from src.syntaxtree import *
 from src.mytoken import TokenType
-from operator import add, sub, truediv, mul, pow
+from operator import add, sub, truediv, mul, pow, or_, and_, not_
 
 class Interpreter:
     def __init__(self, ast, environment=None):
@@ -38,3 +38,17 @@ class Interpreter:
 
     def visit_identifier(self, identifier):
         return self.environment[identifier.name]
+
+    def visit_logicalbinary(self, logicalbinary):
+        left = logicalbinary.left.accept(self)
+        right = logicalbinary.right.accept(self)
+        return {
+            TokenType.OR: or_,
+            TokenType.AND: and_
+        }[logicalbinary.op](left, right)
+
+    def visit_logicalunary(self, logicalunary):
+        value = logicalunary.expr.accept(self)
+        return {
+            TokenType.NOT: not_
+        }[logicalunary.op](value)
