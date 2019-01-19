@@ -44,3 +44,30 @@ class TestInterpreter(TestCase):
             )
         interpreter = Interpreter(tree)
         self.assertEqual(394, interpreter.interpret())
+
+    def test_identifiers(self):
+        # 5 * x + test123 * (7 - asd)
+        tree = \
+            Binary(
+                Binary(
+                    Literal(5),
+                    TokenType.MUL,
+                    Identifier('x')
+                ),
+                TokenType.PLUS,
+                Binary(
+                    Identifier('test123'),
+                    TokenType.MUL,
+                    Grouping(
+                        Binary(
+                            Literal(7),
+                            TokenType.MINUS,
+                            Identifier('asd')
+                        )
+                    )
+                )
+            )
+        env = {'x': 2, 'test123': 7, 'asd': -3}
+        interpreter = Interpreter(tree, env)
+        self.assertEqual(80, interpreter.interpret())
+

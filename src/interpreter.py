@@ -3,8 +3,11 @@ from src.mytoken import TokenType
 from operator import add, sub, truediv, mul, pow
 
 class Interpreter:
-    def __init__(self, ast):
+    def __init__(self, ast, environment=None):
         self.ast = ast
+        self.environment = environment
+        if self.environment is None:
+            self.environment = {}
 
     def interpret(self):
         return self.ast.accept(self)
@@ -32,3 +35,6 @@ class Interpreter:
 
     def visit_literal(self, literal):
         return literal.value
+
+    def visit_identifier(self, identifier):
+        return self.environment[identifier.name]
