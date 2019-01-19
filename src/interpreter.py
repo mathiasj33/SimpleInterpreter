@@ -1,6 +1,6 @@
 from src.syntaxtree import *
 from src.mytoken import TokenType
-from operator import add, sub, truediv, mul, pow, or_, and_, not_
+from operator import add, sub, truediv, mul, pow, or_, and_, not_, lt, le, gt, ge, eq
 
 class Interpreter:
     def __init__(self, ast, environment=None):
@@ -52,3 +52,14 @@ class Interpreter:
         return {
             TokenType.NOT: not_
         }[logicalunary.op](value)
+
+    def visit_comparison(self, comparison):
+        left = comparison.left.accept(self)
+        right = comparison.right.accept(self)
+        return {
+            TokenType.L: lt,
+            TokenType.LE: le,
+            TokenType.G: gt,
+            TokenType.GE: ge,
+            TokenType.EQUAL: eq
+        }[comparison.op](left, right)

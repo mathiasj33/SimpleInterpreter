@@ -91,3 +91,25 @@ class TestInterpreter(TestCase):
             )
         interpreter = Interpreter(tree)
         self.assertEqual(True, interpreter.interpret())
+
+        # 5 <= 3 = 7 > 5 - 2
+        tree = \
+            Comparison(
+                Comparison(
+                    Literal(5),
+                    TokenType.LE,
+                    Literal(3)
+                ),
+                TokenType.EQUAL,
+                Comparison(
+                    Literal(7),
+                    TokenType.G,
+                    Binary(
+                        Literal(5),
+                        TokenType.MINUS,
+                        Literal(2)
+                    )
+                )
+            )
+        interpreter = Interpreter(tree)
+        self.assertEqual(False, interpreter.interpret())
