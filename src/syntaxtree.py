@@ -4,6 +4,9 @@ class Binary:
 		self.op = op
 		self.right = right
 
+	def accept(self, visitor):
+		return visitor.visit_binary(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, Binary): return False
 		elif self is other: return True
@@ -21,6 +24,9 @@ class Unary:
 		self.op = op
 		self.expr = expr
 
+	def accept(self, visitor):
+		return visitor.visit_unary(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, Unary): return False
 		elif self is other: return True
@@ -36,6 +42,9 @@ class Unary:
 class Grouping:
 	def __init__(self, expr):
 		self.expr = expr
+
+	def accept(self, visitor):
+		return visitor.visit_grouping(self)
 
 	def __eq__(self, other):
 		if not isinstance(other, Grouping): return False
@@ -53,6 +62,9 @@ class Literal:
 	def __init__(self, value):
 		self.value = value
 
+	def accept(self, visitor):
+		return visitor.visit_literal(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, Literal): return False
 		elif self is other: return True
@@ -68,6 +80,9 @@ class Literal:
 class Identifier:
 	def __init__(self, name):
 		self.name = name
+
+	def accept(self, visitor):
+		return visitor.visit_identifier(self)
 
 	def __eq__(self, other):
 		if not isinstance(other, Identifier): return False
@@ -87,6 +102,9 @@ class LogicalBinary:
 		self.op = op
 		self.right = right
 
+	def accept(self, visitor):
+		return visitor.visit_logicalbinary(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, LogicalBinary): return False
 		elif self is other: return True
@@ -103,6 +121,9 @@ class LogicalUnary:
 	def __init__(self, op, expr):
 		self.op = op
 		self.expr = expr
+
+	def accept(self, visitor):
+		return visitor.visit_logicalunary(self)
 
 	def __eq__(self, other):
 		if not isinstance(other, LogicalUnary): return False
@@ -122,6 +143,9 @@ class Comparison:
 		self.op = op
 		self.right = right
 
+	def accept(self, visitor):
+		return visitor.visit_comparison(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, Comparison): return False
 		elif self is other: return True
@@ -139,6 +163,9 @@ class Assign:
 		self.left = left
 		self.right = right
 
+	def accept(self, visitor):
+		return visitor.visit_assign(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, Assign): return False
 		elif self is other: return True
@@ -154,6 +181,9 @@ class Assign:
 class Print:
 	def __init__(self, expr):
 		self.expr = expr
+
+	def accept(self, visitor):
+		return visitor.visit_print(self)
 
 	def __eq__(self, other):
 		if not isinstance(other, Print): return False
@@ -173,6 +203,9 @@ class If:
 		self.left = left
 		self.right = right
 
+	def accept(self, visitor):
+		return visitor.visit_if(self)
+
 	def __eq__(self, other):
 		if not isinstance(other, If): return False
 		elif self is other: return True
@@ -189,6 +222,9 @@ class While:
 	def __init__(self, cond, stmts):
 		self.cond = cond
 		self.stmts = stmts
+
+	def accept(self, visitor):
+		return visitor.visit_while(self)
 
 	def __eq__(self, other):
 		if not isinstance(other, While): return False

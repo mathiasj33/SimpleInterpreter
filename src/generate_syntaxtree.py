@@ -24,6 +24,9 @@ with open('syntaxtree.py', 'w') as f:
         for arg in arr[1:]:
             f.write('\t\tself.{} = {}\n'.format(arg, arg))
         f.write('\n')
+        f.write('\tdef accept(self, visitor):\n')
+        f.write('\t\treturn visitor.visit_{}(self)\n'.format(arr[0].lower()))
+        f.write('\n')
         f.write('\tdef __eq__(self, other):\n')
         f.write('\t\tif not isinstance(other, {}): return False\n'.format(arr[0]))
         f.write('\t\telif self is other: return True\n')
