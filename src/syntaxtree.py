@@ -219,9 +219,9 @@ class If:
 		return str(self)
 
 class While:
-	def __init__(self, cond, stmts):
+	def __init__(self, cond, program):
 		self.cond = cond
-		self.stmts = stmts
+		self.program = program
 
 	def accept(self, visitor):
 		return visitor.visit_while(self)
@@ -230,10 +230,29 @@ class While:
 		if not isinstance(other, While): return False
 		elif self is other: return True
 		else:
-			return True and self.cond == other.cond and self.stmts == other.stmts
+			return True and self.cond == other.cond and self.program == other.program
 
 	def __str__(self):
-		return 'While({}, {})'.format(str(self.cond), str(self.stmts))
+		return 'While({}, {})'.format(str(self.cond), str(self.program))
+
+	def __repr__(self):
+		return str(self)
+
+class Program:
+	def __init__(self, stmts):
+		self.stmts = stmts
+
+	def accept(self, visitor):
+		return visitor.visit_program(self)
+
+	def __eq__(self, other):
+		if not isinstance(other, Program): return False
+		elif self is other: return True
+		else:
+			return True and self.stmts == other.stmts
+
+	def __str__(self):
+		return 'Program({})'.format(str(self.stmts))
 
 	def __repr__(self):
 		return str(self)

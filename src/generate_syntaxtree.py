@@ -10,7 +10,8 @@ nodes = [
     'Assign left right',
     'Print expr',
     'If cond left right',
-    'While cond stmts'
+    'While cond program',
+    'Program stmts'
 ]
 
 with open('syntaxtree.py', 'w') as f:

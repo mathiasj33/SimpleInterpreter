@@ -53,17 +53,17 @@ class Parser:
         return self.index >= len(self.tokens)
 
     def parse(self):
-        program = []
+        program = Program([])
         while True:
             token_type = self.peek().token_type
             if token_type == TokenType.IDENT:
-                program.append(self.parse_assignment())
+                program.stmts.append(self.parse_assignment())
             elif token_type == TokenType.PRINT:
-                program.append(self.parse_print())
+                program.stmts.append(self.parse_print())
             elif token_type == TokenType.IF:
-                program.append(self.parse_if())
+                program.stmts.append(self.parse_if())
             elif token_type == TokenType.WHILE:
-                program.append(self.parse_while())
+                program.stmts.append(self.parse_while())
             elif token_type == TokenType.EOL:
                 self.consume()
             else:
@@ -88,13 +88,13 @@ class Parser:
         left = self.parse()
         self.consume_token(TokenType.RBRACE, skip_newline=True)
         if self.is_at_end():
-            return If(condition, left, [])
+            return If(condition, left, Program([]))
 
         if self.peek().token_type != TokenType.ELSE:
-            return If(condition, left, [])
+            return If(condition, left, Program([]))
         self.consume()
         if self.peek().token_type == TokenType.IF:
-            right = [self.parse_if()]
+            right = Program([self.parse_if()])
         else:
             self.consume_token(TokenType.LBRACE, skip_newline=True)
             right = self.parse()

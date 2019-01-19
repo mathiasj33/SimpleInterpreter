@@ -214,8 +214,8 @@ class TestParser(TestCase):
                   MyToken(TokenType.NUMBER, '7', 7, 2)]
         parser = Parser(tokens)
         tree = \
-        [Assign(Identifier('x'), Literal(5)),
-         Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7)))]
+        Program([Assign(Identifier('x'), Literal(5)),
+         Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7)))])
         self.assertEqual(tree, parser.parse())
 
     def test_print(self):
@@ -227,7 +227,7 @@ class TestParser(TestCase):
                   MyToken(TokenType.NUMBER, '2', 2, 2)]
         parser = Parser(tokens)
         tree = \
-        [Print(Identifier('x')), Print(LogicalBinary(Identifier('y'), TokenType.AND, Binary(Literal(7), TokenType.MINUS, Literal(2))))]
+        Program([Print(Identifier('x')), Print(LogicalBinary(Identifier('y'), TokenType.AND, Binary(Literal(7), TokenType.MINUS, Literal(2))))])
         self.assertEqual(tree, parser.parse())
 
     def test_control_structures(self):
@@ -263,20 +263,20 @@ class TestParser(TestCase):
                   MyToken(TokenType.RBRACE, '}', None, 12), MyToken(TokenType.EOL, 'None', None, 12)]
         parser = Parser(tokens)
         tree = \
-        [
+        Program([
             If(
                 Identifier('x'),
-                [Print(Identifier('y')), Assign(Identifier('x'), Literal(6))],
-                []
+                Program([Print(Identifier('y')), Assign(Identifier('x'), Literal(6))]),
+                Program([])
             ),
             If(
                 Comparison(Identifier('x'), TokenType.L, Literal(3)),
-                [Assign(Identifier('x'), Literal(3))],
-                [If(Identifier('t'), [Assign(Identifier('x'), Literal(7))], [Print(Identifier('t'))])]
+                Program([Assign(Identifier('x'), Literal(3))]),
+                Program([If(Identifier('t'), Program([Assign(Identifier('x'), Literal(7))]), Program([Print(Identifier('t'))]))])
             ),
             While(
                 LogicalUnary(TokenType.NOT, Grouping(Comparison(Binary(Identifier('x'), TokenType.PLUS, Identifier('y')), TokenType.EQUAL, Literal(3)))),
-                [Print(Identifier('x')), Print(Identifier('t'))]
+                Program([Print(Identifier('x')), Print(Identifier('t'))])
             )
-        ]
+        ])
         self.assertEqual(tree, parser.parse())
