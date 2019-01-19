@@ -10,6 +10,18 @@ class Interpreter:
             self.environment = {}
 
     def interpret(self):
+        self.ast.accept(self)
+        return self.environment
+
+    def visit_program(self, program):
+        for stmt in program.stmts:
+            stmt.accept(self)
+
+    def visit_assign(self, assign):
+        right = assign.right.accept(self)
+        self.environment[assign.left.name] = right
+
+    def interpret_expr(self):
         return self.ast.accept(self)
 
     def visit_binary(self, binary):

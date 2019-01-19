@@ -43,7 +43,7 @@ class TestInterpreter(TestCase):
                 )
             )
         interpreter = Interpreter(tree)
-        self.assertEqual(394, interpreter.interpret())
+        self.assertEqual(394, interpreter.interpret_expr())
 
     def test_identifiers(self):
         # 5 * x + test123 * (7 - asd)
@@ -69,7 +69,7 @@ class TestInterpreter(TestCase):
             )
         env = {'x': 2, 'test123': 7, 'asd': -3}
         interpreter = Interpreter(tree, env)
-        self.assertEqual(80, interpreter.interpret())
+        self.assertEqual(80, interpreter.interpret_expr())
 
     def test_booleans(self):
         # not true and false or not false
@@ -90,7 +90,7 @@ class TestInterpreter(TestCase):
                 )
             )
         interpreter = Interpreter(tree)
-        self.assertEqual(True, interpreter.interpret())
+        self.assertEqual(True, interpreter.interpret_expr())
 
         # 5 <= 3 = 7 > 5 - 2
         tree = \
@@ -112,4 +112,11 @@ class TestInterpreter(TestCase):
                 )
             )
         interpreter = Interpreter(tree)
-        self.assertEqual(False, interpreter.interpret())
+        self.assertEqual(False, interpreter.interpret_expr())
+
+    def test_assignment(self):
+        tree = \
+            Program([Assign(Identifier('x'), Literal(5)),
+             Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True)))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'x': 5, 'y': True}, interpreter.interpret())
