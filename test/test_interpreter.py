@@ -2,6 +2,8 @@ from src.syntaxtree import *
 from src.mytoken import TokenType
 from src.interpreter import Interpreter
 from unittest import TestCase
+import sys
+from io import StringIO
 
 class TestInterpreter(TestCase):
     def test_arithmetic(self):
@@ -120,3 +122,19 @@ class TestInterpreter(TestCase):
              Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True)))])
         interpreter = Interpreter(tree)
         self.assertEqual({'x': 5, 'y': True}, interpreter.interpret())
+
+    def test_print(self):
+        tree = \
+            Program([Print(Identifier('x')), Print(
+                LogicalBinary(Identifier('y'), TokenType.AND, Literal(False)))])
+        env = {'x': 5, 'y': True}
+        interpreter = Interpreter(tree, env)
+        saved_stdout = sys.stdout
+        try:
+            out = StringIO()
+            sys.stdout = out
+            self.assertEqual(env, interpreter.interpret())
+            output = out.getvalue().strip()
+            self.assertEqual(output, '5\nfalse')
+        finally:
+            sys.stdout = saved_stdout

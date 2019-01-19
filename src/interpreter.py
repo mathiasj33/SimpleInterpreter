@@ -21,6 +21,15 @@ class Interpreter:
         right = assign.right.accept(self)
         self.environment[assign.left.name] = right
 
+    def visit_print(self, print_stmt):
+        value = print_stmt.expr.accept(self)
+        if value is False:
+            print('false')
+        elif value is True:
+            print('true')
+        else:
+            print(value)
+
     def interpret_expr(self):
         return self.ast.accept(self)
 
