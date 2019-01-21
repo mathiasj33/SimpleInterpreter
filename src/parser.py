@@ -28,7 +28,8 @@ class Parser:
             TokenType.L: (self.parse_comparison, Precedences.L, Associativity.LEFT),
             TokenType.LE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
             TokenType.G: (self.parse_comparison, Precedences.L, Associativity.LEFT),
-            TokenType.GE: (self.parse_comparison, Precedences.L, Associativity.LEFT)
+            TokenType.GE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
+            TokenType.LPAREN: (self.parse_call, Precedences.CALL, Associativity.LEFT)
         }
 
     def consume(self):
@@ -41,7 +42,7 @@ class Parser:
             while self.peek().token_type == TokenType.EOL:
                 self.consume()
         if self.peek().token_type != token_type: raise ParseError(self.peek().line, 'Expected {}.'.format(token_type))
-        self.consume()
+        return self.consume()
 
     def peek(self):
         return self.tokens[self.index]
@@ -58,6 +59,10 @@ class Parser:
             token_type = self.peek().token_type
             if token_type == TokenType.IDENT:
                 program.stmts.append(self.parse_assignment())
+            elif token_type == TokenType.FUN:
+                program.stmts.append(self.parse_function())
+            elif token_type == TokenType.RET:
+                program.stmts.append(self.parse_ret())
             elif token_type == TokenType.PRINT:
                 program.stmts.append(self.parse_print())
             elif token_type == TokenType.IF:
@@ -76,6 +81,27 @@ class Parser:
         token = self.consume()
         self.consume_token(TokenType.ASSIGN)
         return Assign(self.parse_identifier(token), self.parse_expr())
+
+    def parse_function(self):
+        self.consume_token(TokenType.FUN)
+        token = self.consume()
+        self.consume_token(TokenType.LPAREN)
+        args = []
+        if self.peek().token_type != TokenType.RPAREN:
+            while True:
+                arg = self.consume_token(TokenType.IDENT)
+                args.append(self.parse_identifier(arg))
+                if self.peek().token_type == TokenType.RPAREN: break
+                self.consume_token(TokenType.COMMA)
+        self.consume_token(TokenType.RPAREN)
+        self.consume_token(TokenType.LBRACE, skip_newline=True)
+        body = self.parse()
+        self.consume_token(TokenType.RBRACE, skip_newline=True)
+        return Fun(self.parse_identifier(token), args, body)
+
+    def parse_ret(self):
+        self.consume_token(TokenType.RET)
+        return Ret(self.parse_expr())
 
     def parse_print(self):
         self.consume_token(TokenType.PRINT)
@@ -171,6 +197,18 @@ class Parser:
         right = self.parse_expr(precedence)
         return Comparison(left, token.token_type, right)
 
+    def parse_call(self, left, token, precedence, associativity):
+        args = []
+        if self.peek().token_type != TokenType.RPAREN:
+            while True:
+                arg = self.parse_expr()
+                args.append(arg)
+                if self.peek().token_type == TokenType.RPAREN: break
+                self.consume_token(TokenType.COMMA)
+        self.consume_token(TokenType.RPAREN)
+        return FunCall(left, args)
+
+
 class Precedences:
     OR = 1
     AND = 2
@@ -180,6 +218,7 @@ class Precedences:
     MUL = 6
     POW = 7
     PREFIX = 8
+    CALL = 9
 
 Associativity = Enum('Associativity', 'LEFT RIGHT')
 
