@@ -218,6 +218,21 @@ class TestParser(TestCase):
          Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7)))])
         self.assertEqual(tree, parser.parse())
 
+    def test_expr_stmt(self):
+        # 5 = 7\nprint x 3 + 2
+        tokens = \
+            [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.EQUAL, '=', None, 1),
+             MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.EOL, 'None', None, 1),
+             MyToken(TokenType.PRINT, 'print', None, 2), MyToken(TokenType.IDENT, 'x', 'x', 2),
+             MyToken(TokenType.NUMBER, '3', 3, 2), MyToken(TokenType.PLUS, '+', None, 2),
+             MyToken(TokenType.NUMBER, '2', 2, 2)]
+        parser = Parser(tokens)
+        tree = \
+        Program([ExprStmt(Comparison(Literal(5), TokenType.EQUAL, Literal(7))),
+                 Print(Identifier('x')),
+                 ExprStmt(Binary(Literal(3), TokenType.PLUS, Literal(2)))])
+        self.assertEqual(tree, parser.parse())
+
     def test_print(self):
         # print x\nprint y and 7 - 2
         tokens = [MyToken(TokenType.PRINT, 'print', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
@@ -282,7 +297,7 @@ class TestParser(TestCase):
         self.assertEqual(tree, parser.parse())
 
     def test_functions(self):
-        # fun f(x) {ret x}\nfun f2(x,y,z) {\nprint x - y\nprint x\n}x := -f() + 3 - g(x + 2, y)(3) y := (g(f))(x)
+        # fun f(x) {ret x}\nfun f2(x,y,z) {\nprint x - y\nprint x\n}x := -f() + 3 - g(x + 2, y)(3) y := (g(f))(x)\nf()
         tokens = \
             [MyToken(TokenType.FUN, 'fun', None, 1), MyToken(TokenType.IDENT, 'f', 'f', 1),
              MyToken(TokenType.LPAREN, '(', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
@@ -314,7 +329,9 @@ class TestParser(TestCase):
              MyToken(TokenType.IDENT, 'g', 'g', 5), MyToken(TokenType.LPAREN, '(', None, 5),
              MyToken(TokenType.IDENT, 'f', 'f', 5), MyToken(TokenType.RPAREN, ')', None, 5),
              MyToken(TokenType.RPAREN, ')', None, 5), MyToken(TokenType.LPAREN, '(', None, 5),
-             MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.RPAREN, ')', None, 5)
+             MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.RPAREN, ')', None, 5),
+             MyToken(TokenType.EOL, None, None, 5), MyToken(TokenType.IDENT, 'f', 'f', 6),
+             MyToken(TokenType.LPAREN, '(', None, 6), MyToken(TokenType.RPAREN, ')', None, 6)
             ]
         parser = Parser(tokens)
         tree = \
@@ -344,7 +361,8 @@ class TestParser(TestCase):
                             )
                         ),
                         [Identifier('x')]
-                    ))
+                    )),
+             ExprStmt(FunCall(Identifier('f'), []))
              ]
         )
         self.assertEqual(tree, parser.parse())

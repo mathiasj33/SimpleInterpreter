@@ -45,7 +45,10 @@ class Parser:
         return self.consume()
 
     def peek(self):
-        return self.tokens[self.index]
+        return self.lookahead(1)
+
+    def lookahead(self, num):
+        return self.tokens[self.index + num - 1]
 
     def is_at_expr_end(self):
         return self.is_at_end() or self.peek().token_type == TokenType.EOL
@@ -57,7 +60,7 @@ class Parser:
         program = Program([])
         while True:
             token_type = self.peek().token_type
-            if token_type == TokenType.IDENT:
+            if token_type == TokenType.IDENT and self.lookahead(2).token_type == TokenType.ASSIGN:
                 program.stmts.append(self.parse_assignment())
             elif token_type == TokenType.FUN:
                 program.stmts.append(self.parse_function())
@@ -72,7 +75,10 @@ class Parser:
             elif token_type == TokenType.EOL:
                 self.consume()
             else:
-                return program
+                try:
+                    program.stmts.append(ExprStmt(self.parse_expr()))
+                except ParseError:
+                    return program
 
             if self.is_at_end():
                 return program
@@ -140,6 +146,7 @@ class Parser:
         try:
             prefix_function = self.prefix_functions[token.token_type]
         except KeyError:
+            self.index -= 1  # undo the consume
             raise ParseError(token.line, 'Could not parse {}.'.format(token.text))
         left = prefix_function(token)
         if self.is_at_expr_end():
@@ -207,7 +214,6 @@ class Parser:
                 self.consume_token(TokenType.COMMA)
         self.consume_token(TokenType.RPAREN)
         return FunCall(left, args)
-
 
 class Precedences:
     OR = 1

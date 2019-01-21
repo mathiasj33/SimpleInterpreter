@@ -238,6 +238,25 @@ class Print:
 	def __repr__(self):
 		return str(self)
 
+class ExprStmt:
+	def __init__(self, expr):
+		self.expr = expr
+
+	def accept(self, visitor):
+		return visitor.visit_exprstmt(self)
+
+	def __eq__(self, other):
+		if not isinstance(other, ExprStmt): return False
+		elif self is other: return True
+		else:
+			return True and self.expr == other.expr
+
+	def __str__(self):
+		return 'ExprStmt({})'.format(str(self.expr))
+
+	def __repr__(self):
+		return str(self)
+
 class Ret:
 	def __init__(self, expr):
 		self.expr = expr

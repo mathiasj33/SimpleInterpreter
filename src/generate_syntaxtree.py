@@ -11,6 +11,7 @@ nodes = [
     'Fun name args body',
     'Assign left right',
     'Print expr',
+    'ExprStmt expr',
     'Ret expr',
     'If cond left right',
     'While cond body',
