@@ -280,3 +280,72 @@ class TestParser(TestCase):
             )
         ])
         self.assertEqual(tree, parser.parse())
+
+    def test_functions(self):
+        # fun f(x) {ret x}\nfun f2(x,y,z) {\nprint x - y\nprint x\n}x := -f() + 3 - g(x + 2, y)(3) y := (g(f))(x)
+        tokens = \
+            [MyToken(TokenType.FUN, 'fun', None, 1), MyToken(TokenType.IDENT, 'f', 'f', 1),
+             MyToken(TokenType.LPAREN, '(', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+             MyToken(TokenType.RPAREN, ')', None, 1), MyToken(TokenType.LBRACE, '{', None, 1),
+             MyToken(TokenType.RET, 'ret', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+             MyToken(TokenType.RBRACE, '}', None, 1), MyToken(TokenType.EOL, None, None, 1),
+             MyToken(TokenType.FUN, 'fun', None, 2), MyToken(TokenType.IDENT, 'f2', 'f2', 2),
+             MyToken(TokenType.LPAREN, '(', None, 2), MyToken(TokenType.IDENT, 'x', 'x', 2),
+             MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'y', 'y', 2),
+             MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'z', 'z', 2),
+             MyToken(TokenType.RPAREN, ')', None, 2), MyToken(TokenType.LBRACE, '{', None, 2),
+             MyToken(TokenType.EOL, None, None, 2), MyToken(TokenType.PRINT, 'print', None, 3),
+             MyToken(TokenType.IDENT, 'x', 'x', 3), MyToken(TokenType.MINUS, '-', None, 3),
+             MyToken(TokenType.IDENT, 'y', 'y', 3), MyToken(TokenType.EOL, None, None, 3),
+             MyToken(TokenType.PRINT, 'print', None, 4), MyToken(TokenType.IDENT, 'x', 'x', 4),
+             MyToken(TokenType.EOL, None, None, 4), MyToken(TokenType.RBRACE, '}', None, 5),
+             MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.ASSIGN, ':=', None, 5),
+             MyToken(TokenType.MINUS, '-', None, 5),
+             MyToken(TokenType.IDENT, 'f', 'f', 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.RPAREN, ')', None, 5), MyToken(TokenType.PLUS, '+', None, 5),
+             MyToken(TokenType.NUMBER, '3', 3, 5), MyToken(TokenType.MINUS, '-', None, 5),
+             MyToken(TokenType.IDENT, 'g', 'g', 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.PLUS, '+', None, 5),
+             MyToken(TokenType.NUMBER, '2', 2, 5), MyToken(TokenType.COMMA, ',', None, 5),
+             MyToken(TokenType.IDENT, 'y', 'y', 5), MyToken(TokenType.RPAREN, ')', None, 5),
+             MyToken(TokenType.LPAREN, '(', None, 5), MyToken(TokenType.NUMBER, '3', 3, 5),
+             MyToken(TokenType.RPAREN, ')', None, 5), MyToken(TokenType.IDENT, 'y', 'y', 5),
+             MyToken(TokenType.ASSIGN, ':=', None, 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.IDENT, 'g', 'g', 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.IDENT, 'f', 'f', 5), MyToken(TokenType.RPAREN, ')', None, 5),
+             MyToken(TokenType.RPAREN, ')', None, 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.RPAREN, ')', None, 5)
+            ]
+        parser = Parser(tokens)
+        tree = \
+        Program(
+            [Fun(Identifier('f'), [Identifier('x')], Program([Ret(Identifier('x'))])),
+             Fun(Identifier('f2'), [Identifier('x'), Identifier('y'), Identifier('z')], Program([Print(Binary(Identifier('x'), TokenType.MINUS, Identifier('y'))),
+                                                 Print(Identifier('x'))])),
+             Assign(Identifier('x'),
+                    Binary(
+                        Binary(
+                            Unary(
+                                TokenType.MINUS,
+                                FunCall(Identifier('f'), [])
+                            ),
+                            TokenType.PLUS,
+                            Literal(3)
+                        ),
+                        TokenType.MINUS,
+                        FunCall(FunCall(Identifier('g'), [Binary(Identifier('x'), TokenType.PLUS, Literal(2)), Identifier('y')]), [Literal(3)])
+                    )),
+             Assign(Identifier('y'),
+                    FunCall(
+                        Grouping(
+                            FunCall(
+                                Identifier('g'),
+                                [Identifier('f')]
+                            )
+                        ),
+                        [Identifier('x')]
+                    ))
+             ]
+        )
+        self.assertEqual(tree, parser.parse())
+

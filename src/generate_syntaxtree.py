@@ -7,8 +7,11 @@ nodes = [
     'LogicalBinary left op right',
     'LogicalUnary op expr',
     'Comparison left op right',
+    'FunCall callee args',
+    'Fun name args program',
     'Assign left right',
     'Print expr',
+    'Ret expr',
     'If cond left right',
     'While cond program',
     'Program stmts'

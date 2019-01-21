@@ -158,6 +158,47 @@ class Comparison:
 	def __repr__(self):
 		return str(self)
 
+class FunCall:
+	def __init__(self, callee, args):
+		self.callee = callee
+		self.args = args
+
+	def accept(self, visitor):
+		return visitor.visit_funcall(self)
+
+	def __eq__(self, other):
+		if not isinstance(other, FunCall): return False
+		elif self is other: return True
+		else:
+			return True and self.callee == other.callee and self.args == other.args
+
+	def __str__(self):
+		return 'FunCall({}, {})'.format(str(self.callee), str(self.args))
+
+	def __repr__(self):
+		return str(self)
+
+class Fun:
+	def __init__(self, name, args, program):
+		self.name = name
+		self.args = args
+		self.program = program
+
+	def accept(self, visitor):
+		return visitor.visit_fun(self)
+
+	def __eq__(self, other):
+		if not isinstance(other, Fun): return False
+		elif self is other: return True
+		else:
+			return True and self.name == other.name and self.args == other.args and self.program == other.program
+
+	def __str__(self):
+		return 'Fun({}, {}, {})'.format(str(self.name), str(self.args), str(self.program))
+
+	def __repr__(self):
+		return str(self)
+
 class Assign:
 	def __init__(self, left, right):
 		self.left = left
@@ -193,6 +234,25 @@ class Print:
 
 	def __str__(self):
 		return 'Print({})'.format(str(self.expr))
+
+	def __repr__(self):
+		return str(self)
+
+class Ret:
+	def __init__(self, expr):
+		self.expr = expr
+
+	def accept(self, visitor):
+		return visitor.visit_ret(self)
+
+	def __eq__(self, other):
+		if not isinstance(other, Ret): return False
+		elif self is other: return True
+		else:
+			return True and self.expr == other.expr
+
+	def __str__(self):
+		return 'Ret({})'.format(str(self.expr))
 
 	def __repr__(self):
 		return str(self)
