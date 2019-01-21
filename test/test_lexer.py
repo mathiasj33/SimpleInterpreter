@@ -58,3 +58,30 @@ class TestLexer(TestCase):
          MyToken(TokenType.IDENT, 'not_', 'not_', 1), MyToken(TokenType.L, '<', None, 1), MyToken(TokenType.NOT, 'not', None, 1),
          MyToken(TokenType.TRUE, 'true', True, 1)]
         self.assertEqual(expected, lexer.lex())
+
+    def test_functions(self):
+        lexer = Lexer('fun f(x) {ret x}\nfun f2(x, y,z) {\nprint x - y\n}\nf() + 3 - g(x, y)(3)')
+        expected = \
+            [MyToken(TokenType.FUN, 'fun', None, 1), MyToken(TokenType.IDENT, 'f', 'f', 1),
+             MyToken(TokenType.LPAREN, '(', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+             MyToken(TokenType.RPAREN, ')', None, 1), MyToken(TokenType.LBRACE, '{', None, 1),
+             MyToken(TokenType.RET, 'ret', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
+             MyToken(TokenType.RBRACE, '}', None, 1), MyToken(TokenType.EOL, None, None, 1),
+             MyToken(TokenType.FUN, 'fun', None, 2), MyToken(TokenType.IDENT, 'f2', 'f2', 2),
+             MyToken(TokenType.LPAREN, '(', None, 2), MyToken(TokenType.IDENT, 'x', 'x', 2),
+             MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'y', 'y', 2),
+             MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'z', 'z', 2),
+             MyToken(TokenType.RPAREN, ')', None, 2), MyToken(TokenType.LBRACE, '{', None, 2),
+             MyToken(TokenType.EOL, None, None, 2), MyToken(TokenType.PRINT, 'print', None, 3),
+             MyToken(TokenType.IDENT, 'x', 'x', 3), MyToken(TokenType.MINUS, '-', None, 3),
+             MyToken(TokenType.IDENT, 'y', 'y', 3), MyToken(TokenType.EOL, None, None, 3),
+             MyToken(TokenType.RBRACE, '}', None, 4), MyToken(TokenType.EOL, None, None, 4),
+             MyToken(TokenType.IDENT, 'f', 'f', 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.RPAREN, ')', None, 5), MyToken(TokenType.PLUS, '+', None, 5),
+             MyToken(TokenType.NUMBER, '3', 3, 5), MyToken(TokenType.MINUS, '-', None, 5),
+             MyToken(TokenType.IDENT, 'g', 'g', 5), MyToken(TokenType.LPAREN, '(', None, 5),
+             MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.COMMA, ',', None, 5),
+             MyToken(TokenType.IDENT, 'y', 'y', 5), MyToken(TokenType.RPAREN, ')', None, 5),
+             MyToken(TokenType.LPAREN, '(', None, 5), MyToken(TokenType.NUMBER, '3', 3, 5),
+             MyToken(TokenType.RPAREN, ')', None, 5)]
+        self.assertEqual(expected, lexer.lex())

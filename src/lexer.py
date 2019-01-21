@@ -19,6 +19,7 @@ class Lexer:
             ':': None,  # only needed for :=
             '<': TokenType.L,
             '>': TokenType.G,
+            ',': TokenType.COMMA,
             '\n': TokenType.EOL
         }
         self.keywords = {
@@ -30,7 +31,9 @@ class Lexer:
             'false': TokenType.FALSE,
             'or': TokenType.OR,
             'and': TokenType.AND,
-            'not': TokenType.NOT
+            'not': TokenType.NOT,
+            'fun': TokenType.FUN,
+            'ret': TokenType.RET
         }
 
     def current(self):
