@@ -179,10 +179,10 @@ class FunCall:
 		return str(self)
 
 class Fun:
-	def __init__(self, name, args, program):
+	def __init__(self, name, args, body):
 		self.name = name
 		self.args = args
-		self.program = program
+		self.body = body
 
 	def accept(self, visitor):
 		return visitor.visit_fun(self)
@@ -191,10 +191,10 @@ class Fun:
 		if not isinstance(other, Fun): return False
 		elif self is other: return True
 		else:
-			return True and self.name == other.name and self.args == other.args and self.program == other.program
+			return True and self.name == other.name and self.args == other.args and self.body == other.body
 
 	def __str__(self):
-		return 'Fun({}, {}, {})'.format(str(self.name), str(self.args), str(self.program))
+		return 'Fun({}, {}, {})'.format(str(self.name), str(self.args), str(self.body))
 
 	def __repr__(self):
 		return str(self)
@@ -279,9 +279,9 @@ class If:
 		return str(self)
 
 class While:
-	def __init__(self, cond, program):
+	def __init__(self, cond, body):
 		self.cond = cond
-		self.program = program
+		self.body = body
 
 	def accept(self, visitor):
 		return visitor.visit_while(self)
@@ -290,10 +290,10 @@ class While:
 		if not isinstance(other, While): return False
 		elif self is other: return True
 		else:
-			return True and self.cond == other.cond and self.program == other.program
+			return True and self.cond == other.cond and self.body == other.body
 
 	def __str__(self):
-		return 'While({}, {})'.format(str(self.cond), str(self.program))
+		return 'While({}, {})'.format(str(self.cond), str(self.body))
 
 	def __repr__(self):
 		return str(self)

@@ -39,7 +39,7 @@ class Interpreter:
 
     def visit_while(self, while_stmt):
         while while_stmt.cond.accept(self):
-            while_stmt.program.accept(self)
+            while_stmt.body.accept(self)
 
     def interpret_expr(self):
         return self.ast.accept(self)

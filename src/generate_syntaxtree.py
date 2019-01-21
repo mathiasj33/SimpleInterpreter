@@ -8,12 +8,12 @@ nodes = [
     'LogicalUnary op expr',
     'Comparison left op right',
     'FunCall callee args',
-    'Fun name args program',
+    'Fun name args body',
     'Assign left right',
     'Print expr',
     'Ret expr',
     'If cond left right',
-    'While cond program',
+    'While cond body',
     'Program stmts'
 ]
 
