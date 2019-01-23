@@ -1,3 +1,6 @@
+from src.syntaxtree import Identifier
+from src.environment import Environment
+
 class Function:
     def __init__(self, fun, env):
         self.fun = fun
@@ -5,7 +8,7 @@ class Function:
 
     def call(self, interpreter, args):
         new_env = interpreter.begin_scope()
-        new_env.update(self.env)
+        new_env.update(Environment({k:v for k,v in self.env.items() if Identifier(k) not in self.fun.args}))  # do not update the arguments
         for i in range(len(self.fun.args)):
             new_env[self.fun.args[i].name] = args[i].accept(interpreter)  # eager evaluation
         try:

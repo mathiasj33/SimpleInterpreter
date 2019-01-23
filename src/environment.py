@@ -19,6 +19,18 @@ class Environment:
     def __contains__(self, item):
         return item in self.env or (not self.parent is None and item in self.parent)
 
+    def __iter__(self):
+        return iter(self.env)
+
+    def keys(self):
+        return self.env.keys()
+
+    def items(self):
+        return self.env.items()
+
+    def values(self):
+        return self.env.values()
+
     def update(self, other):
         self.env.update(other.env)
 
