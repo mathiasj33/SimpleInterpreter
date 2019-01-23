@@ -1,13 +1,57 @@
 x := 7
-result := 1
-doCompute := 1
 
-if x < 0 or not (doCompute = 1) {
-    print -1
-} else {
-    while x > 0 {
-        result := result * x
-        x := x - 1
+fun factorial(x) {
+    result := 1
+    doCompute := 1
+
+    if x < 0 or not (doCompute = 1) {
+        ret -1
+    } else {
+        while x > 0 {
+            result := result * x
+            x := x - 1
+        }
+        ret result
     }
-    print result
 }
+
+print factorial(x) - 2
+
+fun try() {
+    print x
+}
+
+x := -1
+try()
+
+x := -1
+
+fun facrec(x) {
+    if x = 0 {
+        ret 1
+    } else {
+        ret facrec(x-1) * x
+    }
+}
+
+print facrec(7)
+print facrec(4) = factorial(4)
+
+fun odd(n) {
+    if n = 0 {
+        ret false
+    }
+    ret even(n-1)
+}
+
+fun even(n) {
+    if n = 0 {
+        ret true
+    }
+    ret odd(n-1)
+}
+
+print even(5)
+print odd(5)
+print even(10)
+print odd(10)
