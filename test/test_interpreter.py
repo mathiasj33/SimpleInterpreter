@@ -247,3 +247,41 @@ class TestInterpreter(TestCase):
         self.assertEqual(True, env['b'])
         self.assertEqual(True, env['c'])
         self.assertEqual(False, env['d'])
+
+    def test_higher_order_functions(self):
+        # fun f(g, x) {ret g(g(x))}\nfun g(x) {ret x+1}\ny:=f(g, 3)
+        tree = \
+            Program([Fun(Identifier('f'), [Identifier('g'), Identifier('x')],
+                         Program([Ret(FunCall(Identifier('g'), [FunCall(Identifier('g'), [Identifier('x')])]))])),
+                     Fun(Identifier('g'), [Identifier('x')],
+                         Program([Ret(Binary(Identifier('x'), TokenType.PLUS, Literal(1)))])),
+                     Assign(Identifier('y'), FunCall(Identifier('f'), [Identifier('g'), Literal(3)]))])
+        interpreter = Interpreter()
+        self.assertEqual(5, interpreter.interpret(tree)['y'])
+
+        # fun f() {fun g() {ret 1}\nret g}\nx := f()()
+        tree = \
+            Program([Fun(Identifier('f'), [],
+                         Program([Fun(Identifier('g'), [], Program([Ret(Literal(1))])), Ret(Identifier('g'))])),
+                     Assign(Identifier('x'), FunCall(FunCall(Identifier('f'), []), []))])
+        interpreter = Interpreter()
+        env = interpreter.interpret(tree)
+        self.assertEqual(1, env['x'])
+        self.assertFalse('g' in env)
+
+        # fun double(f) {fun g(x) {ret f(f(x))}\n ret g}\nfun g(x) {ret x+1}\nd:= double(g)\na:=d(3)\nb:=d(5)
+        tree = \
+            Program([Fun(Identifier('double'), [Identifier('f')], Program([Fun(Identifier('g'), [Identifier('x')],
+                                                                               Program([Ret(FunCall(Identifier('f'), [
+                                                                                   FunCall(Identifier('f'),
+                                                                                           [Identifier('x')])]))])),
+                                                                           Ret(Identifier('g'))])),
+                     Fun(Identifier('g'), [Identifier('x')],
+                         Program([Ret(Binary(Identifier('x'), TokenType.PLUS, Literal(1)))])),
+                     Assign(Identifier('d'), FunCall(Identifier('double'), [Identifier('g')])),
+                     Assign(Identifier('a'), FunCall(Identifier('d'), [Literal(3)])),
+                     Assign(Identifier('b'), FunCall(Identifier('d'), [Literal(5)]))])
+        interpreter = Interpreter()
+        env = interpreter.interpret(tree)
+        self.assertEqual(5, env['a'])
+        self.assertEqual(7, env['b'])
