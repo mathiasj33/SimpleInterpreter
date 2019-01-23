@@ -1,6 +1,7 @@
 from src.syntaxtree import *
 from src.mytoken import TokenType
 from src.interpreter import Interpreter
+from src.closure import Closure
 from unittest import TestCase
 import sys
 from io import StringIO
@@ -161,3 +162,52 @@ class TestInterpreter(TestCase):
                      Assign(Identifier('b'), Comparison(Identifier('x'), TokenType.EQUAL, Literal(10)))])
         interpreter = Interpreter(tree)
         self.assertEqual({'x': 10, 'b': True}, interpreter.interpret())
+
+    def test_functions_basics(self):
+        # y:=1\nfun f(x) {ret x}
+        tree = \
+            Program([Assign(Identifier('y'),  Literal(1)), Fun(Identifier('f'), [Identifier('x')], Program([Ret(Identifier('x'))]))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'f': Closure(Identifier('f'), [Identifier('x')], Program([Ret(Identifier('x'))]), {'y': 1,
+                         'f': Closure(Identifier('f'), [Identifier('x')], Program([Ret(Identifier('x'))]), {'y': 1})}), 'y': 1}, interpreter.interpret())
+
+        # x:=2\nfun f(x) {y:=1\nret x ^ 2\nret x}\nx := f(x + 1)
+        tree = \
+            Program([Assign(Identifier('x'), Literal(2)), Fun(Identifier('f'), [Identifier('x')], Program([
+                Assign(Identifier('y'), Literal(1)),
+                Ret(Binary(Identifier('x'), TokenType.POW, Literal(2))), Ret(Identifier('x'))])),
+            Assign(Identifier('x'), FunCall(Identifier('f'), [Binary(Identifier('x'), TokenType.PLUS, Literal(1))]))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'x': 9, 'f': Closure(Identifier('f'), [Identifier('x')], Program([
+                Assign(Identifier('y'), Literal(1)),
+                Ret(Binary(Identifier('x'), TokenType.POW, Literal(2))), Ret(Identifier('x'))]), {'x': 2,
+              'f': Closure(Identifier('f'), [Identifier('x')], Program([
+                Assign(Identifier('y'), Literal(1)),
+                Ret(Binary(Identifier('x'), TokenType.POW, Literal(2))), Ret(Identifier('x'))]), {'x': 2})})}, interpreter.interpret())
+
+        # x:=1\nfun f() {ret x}\nx:=2\ny := f()
+        tree = \
+            Program([Assign(Identifier('x'), Literal(1)),
+                     Fun(Identifier('f'), [], Program([Ret(Identifier('x'))])),
+                     Assign(Identifier('x'), Literal(2)),
+                     Assign(Identifier('y'), FunCall(Identifier('f'), []))])
+        interpreter = Interpreter(tree)
+        self.assertEqual({'x': 2, 'f': Closure(Identifier('f'), [], Program([Ret(Identifier('x'))]), {'x': 1,
+                          'f': Closure(Identifier('f'), [], Program([Ret(Identifier('x'))]), {'x': 1})}), 'y': 1}, interpreter.interpret())
+
+    def test_functions_recursion(self):
+        # fun f(a,b) {if a = 0 {ret b} else {ret f(a-1,b+1)}}\nx:=f(5,0)
+        tree = \
+            Program([
+                Fun(Identifier('f'), [Identifier('a'), Identifier('b')], Program([
+                    If(Comparison(Identifier('a'), TokenType.EQUAL, Literal(0)),
+                       Program([Ret(Identifier('b'))]),
+                       Program([Ret(FunCall(Identifier('f'),
+                                            [Binary(Identifier('a'), TokenType.MINUS, Literal(1)),
+                                             Binary(Identifier('b'), TokenType.PLUS, Literal(1))]))])
+                       )
+                ])),
+                Assign(Identifier('x'), FunCall(Identifier('f'), [Literal(5), Literal(0)]))
+            ])
+        interpreter = Interpreter(tree)
+        self.assertEqual(5, interpreter.interpret()['x'])
