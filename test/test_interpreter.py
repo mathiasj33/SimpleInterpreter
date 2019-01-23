@@ -1,8 +1,8 @@
 from src.syntaxtree import *
 from src.mytoken import TokenType
 from src.interpreter import Interpreter
-from src.function import Function
 from src.environment import Environment
+from src.function import Function
 from unittest import TestCase
 import sys
 from io import StringIO
@@ -285,3 +285,20 @@ class TestInterpreter(TestCase):
         env = interpreter.interpret(tree)
         self.assertEqual(5, env['a'])
         self.assertEqual(7, env['b'])
+
+    def test_expression_statements(self):
+        # fun f() {print 5}\n10+4\nf()
+        tree = \
+            Program([Fun(Identifier('f'), [], Program([Print(Literal(5))])),
+                     ExprStmt(Binary(Literal(10), TokenType.PLUS, Literal(4))), ExprStmt(FunCall(Identifier('f'), []))])
+        interpreter = Interpreter()
+        saved_stdout = sys.stdout
+        try:
+            out = StringIO()
+            sys.stdout = out
+            interpreter.interpret(tree)
+            output = out.getvalue().strip()
+            self.assertEqual(output, '5')
+        finally:
+            sys.stdout = saved_stdout
+

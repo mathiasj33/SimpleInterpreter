@@ -61,6 +61,9 @@ class Interpreter:
         while while_stmt.cond.accept(self):
             while_stmt.body.accept(self)
 
+    def visit_exprstmt(self, exprstmt):
+        exprstmt.expr.accept(self)
+
     def interpret_expr(self, expr):
         return expr.accept(self)
 
