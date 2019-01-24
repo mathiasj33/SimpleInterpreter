@@ -23,7 +23,6 @@ class Lexer:
             '\n': TokenType.EOL
         }
         self.keywords = {
-            'print': TokenType.PRINT,
             'if': TokenType.IF,
             'else': TokenType.ELSE,
             'while': TokenType.WHILE,

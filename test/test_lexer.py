@@ -37,7 +37,7 @@ class TestLexer(TestCase):
          MyToken(TokenType.RBRACE, '}', None, 1), MyToken(TokenType.EOL, None, None, 1), MyToken(TokenType.ELSE, 'else', None, 2),
          MyToken(TokenType.IDENT, 'elses', 'elses', 2), MyToken(TokenType.IDENT, 'i', 'i', 2), MyToken(TokenType.IDENT, 'ifs', 'ifs', 2),
          MyToken(TokenType.RBRACE, '}', None, 2), MyToken(TokenType.WHILE, 'while', None, 2), MyToken(TokenType.LBRACE, '{', None, 2),
-         MyToken(TokenType.PRINT, 'print', None, 2), MyToken(TokenType.IDENT, 'printx', 'printx', 2), MyToken(TokenType.IDENT, '_print', '_print', 2)]
+         MyToken(TokenType.IDENT, 'print', 'print', 2), MyToken(TokenType.IDENT, 'printx', 'printx', 2), MyToken(TokenType.IDENT, '_print', '_print', 2)]
         self.assertEqual(expected, lexer.lex())
 
     def test_assignment(self):
@@ -60,7 +60,7 @@ class TestLexer(TestCase):
         self.assertEqual(expected, lexer.lex())
 
     def test_functions(self):
-        lexer = Lexer('fun f(x) {ret x}\nfun f2(x, y,z) {\nprint x - y\n}\nf() + 3 - g(x, y)(3)')
+        lexer = Lexer('fun f(x) {ret x}\nfun f2(x, y,z) {\nx - y\n}\nf() + 3 - g(x, y)(3)')
         expected = \
             [MyToken(TokenType.FUN, 'fun', None, 1), MyToken(TokenType.IDENT, 'f', 'f', 1),
              MyToken(TokenType.LPAREN, '(', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
@@ -72,7 +72,7 @@ class TestLexer(TestCase):
              MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'y', 'y', 2),
              MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'z', 'z', 2),
              MyToken(TokenType.RPAREN, ')', None, 2), MyToken(TokenType.LBRACE, '{', None, 2),
-             MyToken(TokenType.EOL, None, None, 2), MyToken(TokenType.PRINT, 'print', None, 3),
+             MyToken(TokenType.EOL, None, None, 2),
              MyToken(TokenType.IDENT, 'x', 'x', 3), MyToken(TokenType.MINUS, '-', None, 3),
              MyToken(TokenType.IDENT, 'y', 'y', 3), MyToken(TokenType.EOL, None, None, 3),
              MyToken(TokenType.RBRACE, '}', None, 4), MyToken(TokenType.EOL, None, None, 4),

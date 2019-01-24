@@ -219,36 +219,23 @@ class TestParser(TestCase):
         self.assertEqual(tree, parser.parse())
 
     def test_expr_stmt(self):
-        # 5 = 7\nprint x 3 + 2
+        # 5 = 7\n x 3 + 2
         tokens = \
             [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.EQUAL, '=', None, 1),
-             MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.EOL, 'None', None, 1),
-             MyToken(TokenType.PRINT, 'print', None, 2), MyToken(TokenType.IDENT, 'x', 'x', 2),
+             MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.EOL, 'None', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 2),
              MyToken(TokenType.NUMBER, '3', 3, 2), MyToken(TokenType.PLUS, '+', None, 2),
              MyToken(TokenType.NUMBER, '2', 2, 2)]
         parser = Parser(tokens)
         tree = \
         Program([ExprStmt(Comparison(Literal(5), TokenType.EQUAL, Literal(7))),
-                 Print(Identifier('x')),
+                 ExprStmt(Identifier('x')),
                  ExprStmt(Binary(Literal(3), TokenType.PLUS, Literal(2)))])
         self.assertEqual(tree, parser.parse())
 
-    def test_print(self):
-        # print x\nprint y and 7 - 2
-        tokens = [MyToken(TokenType.PRINT, 'print', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
-                  MyToken(TokenType.EOL, 'None', None, 1), MyToken(TokenType.PRINT, 'print', None, 2),
-                  MyToken(TokenType.IDENT, 'y', 'y', 2), MyToken(TokenType.AND, 'and', None, 2),
-                  MyToken(TokenType.NUMBER, '7', 7, 2), MyToken(TokenType.MINUS, '-', None, 2),
-                  MyToken(TokenType.NUMBER, '2', 2, 2)]
-        parser = Parser(tokens)
-        tree = \
-        Program([Print(Identifier('x')), Print(LogicalBinary(Identifier('y'), TokenType.AND, Binary(Literal(7), TokenType.MINUS, Literal(2))))])
-        self.assertEqual(tree, parser.parse())
-
     def test_control_structures(self):
-        # if x {print y\nx := 6}\nif x < 3 {\nx := 3\n} else if t {\nx := 7\n} else \n{print t\n}\nwhile not (x + y = 3) {print x\nprint t\n}\n
+        # if x {y\nx := 6}\nif x < 3 {\nx := 3\n} else if t {\nx := 7\n} else \n{t\n}\nwhile not (x + y = 3) {x\nt\n}\n
         tokens = [MyToken(TokenType.IF, 'if', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
-                  MyToken(TokenType.LBRACE,'{', None, 1), MyToken(TokenType.PRINT, 'print', None, 1),
+                  MyToken(TokenType.LBRACE,'{', None, 1),
                   MyToken(TokenType.IDENT, 'y', 'y', 1), MyToken(TokenType.EOL, 'None', None, 1),
                   MyToken(TokenType.IDENT, 'x', 'x', 2), MyToken(TokenType.ASSIGN, ':=', None, 2),
                   MyToken(TokenType.NUMBER, '6', 6, 2), MyToken(TokenType.RBRACE, '}', None, 2),
@@ -264,7 +251,7 @@ class TestParser(TestCase):
                   MyToken(TokenType.ASSIGN, ':=', None, 6), MyToken(TokenType.NUMBER, '7', 7, 6),
                   MyToken(TokenType.EOL, 'None', None, 6), MyToken(TokenType.RBRACE, '}', None, 7),
                   MyToken(TokenType.ELSE, 'else', None, 7), MyToken(TokenType.EOL, 'None', None, 7),
-                  MyToken(TokenType.LBRACE, '{', None, 8), MyToken(TokenType.PRINT, 'print', None, 8),
+                  MyToken(TokenType.LBRACE, '{', None, 8),
                   MyToken(TokenType.IDENT, 't', 't', 8), MyToken(TokenType.EOL, 'None', None, 8),
                   MyToken(TokenType.RBRACE, '}', None, 9), MyToken(TokenType.EOL, 'None', None, 9),
                   MyToken(TokenType.WHILE, 'while', None, 10), MyToken(TokenType.NOT, 'not', None, 10),
@@ -272,8 +259,8 @@ class TestParser(TestCase):
                   MyToken(TokenType.PLUS, '+', None, 10), MyToken(TokenType.IDENT, 'y', 'y', 10),
                   MyToken(TokenType.EQUAL, '=', None, 10), MyToken(TokenType.NUMBER, '3', 3, 10),
                   MyToken(TokenType.RPAREN, ')', None, 10), MyToken(TokenType.LBRACE, '{', None, 10),
-                  MyToken(TokenType.PRINT, 'print', None, 10), MyToken(TokenType.IDENT, 'x', 'x', 10),
-                  MyToken(TokenType.EOL, 'None', None, 10), MyToken(TokenType.PRINT, 'print', None, 11),
+                   MyToken(TokenType.IDENT, 'x', 'x', 10),
+                  MyToken(TokenType.EOL, 'None', None, 10),
                   MyToken(TokenType.IDENT, 't', 't', 11), MyToken(TokenType.EOL, 'None', None, 11),
                   MyToken(TokenType.RBRACE, '}', None, 12), MyToken(TokenType.EOL, 'None', None, 12)]
         parser = Parser(tokens)
@@ -281,23 +268,23 @@ class TestParser(TestCase):
         Program([
             If(
                 Identifier('x'),
-                Program([Print(Identifier('y')), Assign(Identifier('x'), Literal(6))]),
+                Program([ExprStmt(Identifier('y')), Assign(Identifier('x'), Literal(6))]),
                 Program([])
             ),
             If(
                 Comparison(Identifier('x'), TokenType.L, Literal(3)),
                 Program([Assign(Identifier('x'), Literal(3))]),
-                Program([If(Identifier('t'), Program([Assign(Identifier('x'), Literal(7))]), Program([Print(Identifier('t'))]))])
+                Program([If(Identifier('t'), Program([Assign(Identifier('x'), Literal(7))]), Program([ExprStmt(Identifier('t'))]))])
             ),
             While(
                 LogicalUnary(TokenType.NOT, Grouping(Comparison(Binary(Identifier('x'), TokenType.PLUS, Identifier('y')), TokenType.EQUAL, Literal(3)))),
-                Program([Print(Identifier('x')), Print(Identifier('t'))])
+                Program([ExprStmt(Identifier('x')), ExprStmt(Identifier('t'))])
             )
         ])
         self.assertEqual(tree, parser.parse())
 
     def test_functions(self):
-        # fun f(x) {ret x}\nfun f2(x,y,z) {\nprint x - y\nprint x\n}x := -f() + 3 - g(x + 2, y)(3) y := (g(f))(x)\nf()
+        # fun f(x) {ret x}\nfun f2(x,y,z) {\nprint(x - y)\nx\n}x := -f() + 3 - g(x + 2, y)(3) y := (g(f))(x)\nf()
         tokens = \
             [MyToken(TokenType.FUN, 'fun', None, 1), MyToken(TokenType.IDENT, 'f', 'f', 1),
              MyToken(TokenType.LPAREN, '(', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
@@ -309,10 +296,11 @@ class TestParser(TestCase):
              MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'y', 'y', 2),
              MyToken(TokenType.COMMA, ',', None, 2), MyToken(TokenType.IDENT, 'z', 'z', 2),
              MyToken(TokenType.RPAREN, ')', None, 2), MyToken(TokenType.LBRACE, '{', None, 2),
-             MyToken(TokenType.EOL, None, None, 2), MyToken(TokenType.PRINT, 'print', None, 3),
+             MyToken(TokenType.EOL, None, None, 2), MyToken(TokenType.IDENT, 'print', 'print', 3),
+             MyToken(TokenType.LPAREN, '(', None, 3),
              MyToken(TokenType.IDENT, 'x', 'x', 3), MyToken(TokenType.MINUS, '-', None, 3),
-             MyToken(TokenType.IDENT, 'y', 'y', 3), MyToken(TokenType.EOL, None, None, 3),
-             MyToken(TokenType.PRINT, 'print', None, 4), MyToken(TokenType.IDENT, 'x', 'x', 4),
+             MyToken(TokenType.IDENT, 'y', 'y', 3), MyToken(TokenType.RPAREN, ')', None, 3),
+             MyToken(TokenType.EOL, None, None, 3), MyToken(TokenType.IDENT, 'x', 'x', 4),
              MyToken(TokenType.EOL, None, None, 4), MyToken(TokenType.RBRACE, '}', None, 5),
              MyToken(TokenType.IDENT, 'x', 'x', 5), MyToken(TokenType.ASSIGN, ':=', None, 5),
              MyToken(TokenType.MINUS, '-', None, 5),
@@ -337,8 +325,9 @@ class TestParser(TestCase):
         tree = \
         Program(
             [Fun(Identifier('f'), [Identifier('x')], Program([Ret(Identifier('x'))])),
-             Fun(Identifier('f2'), [Identifier('x'), Identifier('y'), Identifier('z')], Program([Print(Binary(Identifier('x'), TokenType.MINUS, Identifier('y'))),
-                                                 Print(Identifier('x'))])),
+             Fun(Identifier('f2'), [Identifier('x'), Identifier('y'), Identifier('z')], Program([
+                 ExprStmt(FunCall(Identifier('print'), [Binary(Identifier('x'), TokenType.MINUS, Identifier('y'))])),
+                                                 ExprStmt(Identifier('x'))])),
              Assign(Identifier('x'),
                     Binary(
                         Binary(

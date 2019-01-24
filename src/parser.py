@@ -66,8 +66,6 @@ class Parser:
                 program.stmts.append(self.parse_function())
             elif token_type == TokenType.RET:
                 program.stmts.append(self.parse_ret())
-            elif token_type == TokenType.PRINT:
-                program.stmts.append(self.parse_print())
             elif token_type == TokenType.IF:
                 program.stmts.append(self.parse_if())
             elif token_type == TokenType.WHILE:
@@ -108,10 +106,6 @@ class Parser:
     def parse_ret(self):
         self.consume_token(TokenType.RET)
         return Ret(self.parse_expr())
-
-    def parse_print(self):
-        self.consume_token(TokenType.PRINT)
-        return Print(self.parse_expr())
 
     def parse_if(self):
         self.consume_token(TokenType.IF)

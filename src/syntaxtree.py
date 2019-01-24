@@ -91,7 +91,7 @@ class Identifier:
 			return True and self.name == other.name
 
 	def __str__(self):
-		return 'Identifier(\'{}\')'.format(str(self.name))
+		return 'Identifier({})'.format(str(self.name))
 
 	def __repr__(self):
 		return str(self)
@@ -215,25 +215,6 @@ class Assign:
 
 	def __str__(self):
 		return 'Assign({}, {})'.format(str(self.left), str(self.right))
-
-	def __repr__(self):
-		return str(self)
-
-class Print:
-	def __init__(self, expr):
-		self.expr = expr
-
-	def accept(self, visitor):
-		return visitor.visit_print(self)
-
-	def __eq__(self, other):
-		if not isinstance(other, Print): return False
-		elif self is other: return True
-		else:
-			return True and self.expr == other.expr
-
-	def __str__(self):
-		return 'Print({})'.format(str(self.expr))
 
 	def __repr__(self):
 		return str(self)

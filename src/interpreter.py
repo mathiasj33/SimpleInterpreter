@@ -1,14 +1,17 @@
 from src.syntaxtree import *
 from src.function import *
+from src.print_function import PrintFunction
 from src.mytoken import TokenType
 from src.environment import Environment
 from operator import add, sub, truediv, mul, pow, or_, and_, not_, lt, le, gt, ge, eq
 
 class Interpreter:
-    def __init__(self, globals=None):
-        self.globals = globals
-        if self.globals is None:
+    def __init__(self, env=None):
+        if env is None:
             self.globals = Environment({})
+        else:
+            self.globals = env
+        self.globals['print'] = PrintFunction()
         self.environment = self.globals
 
     def begin_scope(self):
@@ -40,15 +43,6 @@ class Interpreter:
 
     def visit_ret(self, ret):
         raise RetError(ret.expr.accept(self))
-
-    def visit_print(self, print_stmt):
-        value = print_stmt.expr.accept(self)
-        if value is False:
-            print('false')
-        elif value is True:
-            print('true')
-        else:
-            print(value)
 
     def visit_if(self, if_stmt):
         cond_value = if_stmt.cond.accept(self)

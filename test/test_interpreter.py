@@ -123,12 +123,14 @@ class TestInterpreter(TestCase):
             Program([Assign(Identifier('x'), Literal(5)),
              Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True)))])
         interpreter = Interpreter()
-        self.assertEqual(Environment({'x': 5, 'y': True}), interpreter.interpret(tree))
+        env = interpreter.interpret(tree)
+        self.assertEqual(5, env['x'])
+        self.assertEqual(True, env['y'])
 
     def test_print(self):
         tree = \
-            Program([Print(Identifier('x')), Print(
-                LogicalBinary(Identifier('y'), TokenType.AND, Literal(False)))])
+            Program([ExprStmt(FunCall(Identifier('print'), [Identifier('x')])), ExprStmt(FunCall(Identifier('print'),[
+                LogicalBinary(Identifier('y'), TokenType.AND, Literal(False))]))])
         env = {'x': 5, 'y': True}
         interpreter = Interpreter(env)
         saved_stdout = sys.stdout
@@ -147,14 +149,14 @@ class TestInterpreter(TestCase):
             Program([Assign(Identifier('x'), Literal(0)), If(Comparison(Literal(2), TokenType.L, Literal(3)),
                                                     Program([Assign(Identifier('x'), Literal(5))]), Program([]))])
         interpreter = Interpreter()
-        self.assertEqual(Environment({'x': 5}), interpreter.interpret(tree))
+        self.assertEqual(5, interpreter.interpret(tree)['x'])
 
         # x := 0\nif 2 > 3 {x := 5}
         tree = \
             Program([Assign(Identifier('x'), Literal(0)), If(Comparison(Literal(3), TokenType.L, Literal(2)),
                                                     Program([Assign(Identifier('x'), Literal(5))]), Program([]))])
         interpreter = Interpreter()
-        self.assertEqual(Environment({'x': 0}), interpreter.interpret(tree))
+        self.assertEqual(0, interpreter.interpret(tree)['x'])
 
         # x := 0\nwhile x < 10 {x := x + 1}\nb := x = 10
         tree = \
@@ -162,7 +164,9 @@ class TestInterpreter(TestCase):
                                                        Program([Assign(Identifier('x'), Binary(Identifier('x'), TokenType.PLUS, Literal(1)))])),
                      Assign(Identifier('b'), Comparison(Identifier('x'), TokenType.EQUAL, Literal(10)))])
         interpreter = Interpreter()
-        self.assertEqual(Environment({'x': 10, 'b': True}), interpreter.interpret(tree))
+        env = interpreter.interpret(tree)
+        self.assertEqual(10, env['x'])
+        self.assertEqual(True, env['b'])
 
     def test_functions_basics(self):
         # x:=2\nfun f(x) {y:=1\nret x ^ 2\nret x}\nx := f(x + 1)
@@ -287,9 +291,9 @@ class TestInterpreter(TestCase):
         self.assertEqual(7, env['b'])
 
     def test_expression_statements(self):
-        # fun f() {print 5}\n10+4\nf()
+        # fun f() {print(5)}\n10+4\nf()
         tree = \
-            Program([Fun(Identifier('f'), [], Program([Print(Literal(5))])),
+            Program([Fun(Identifier('f'), [], Program([ExprStmt(FunCall(Identifier('print'), [Literal(5)]))])),
                      ExprStmt(Binary(Literal(10), TokenType.PLUS, Literal(4))), ExprStmt(FunCall(Identifier('f'), []))])
         interpreter = Interpreter()
         saved_stdout = sys.stdout
@@ -298,7 +302,7 @@ class TestInterpreter(TestCase):
             sys.stdout = out
             interpreter.interpret(tree)
             output = out.getvalue().strip()
-            self.assertEqual(output, '5')
+            self.assertEqual('5', output)
         finally:
             sys.stdout = saved_stdout
 
