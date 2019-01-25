@@ -158,6 +158,27 @@ class Comparison:
 	def __repr__(self):
 		return str(self)
 
+class StringBinary:
+	def __init__(self, left, op, right):
+		self.left = left
+		self.op = op
+		self.right = right
+
+	def accept(self, visitor):
+		return visitor.visit_stringbinary(self)
+
+	def __eq__(self, other):
+		if not isinstance(other, StringBinary): return False
+		elif self is other: return True
+		else:
+			return True and self.left == other.left and self.op == other.op and self.right == other.right
+
+	def __str__(self):
+		return 'StringBinary({}, {}, {})'.format(str(self.left), str(self.op), str(self.right))
+
+	def __repr__(self):
+		return str(self)
+
 class FunCall:
 	def __init__(self, callee, args):
 		self.callee = callee

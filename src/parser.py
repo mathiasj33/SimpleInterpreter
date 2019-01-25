@@ -11,6 +11,7 @@ class Parser:
             TokenType.TRUE: self.parse_literal,
             TokenType.FALSE: self.parse_literal,
             TokenType.IDENT: self.parse_identifier,
+            TokenType.STRING: self.parse_literal,
             TokenType.PLUS: self.parse_prefix_operator,
             TokenType.MINUS: self.parse_prefix_operator,
             TokenType.NOT: self.parse_prefix_logical_operator,
@@ -29,6 +30,7 @@ class Parser:
             TokenType.LE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
             TokenType.G: (self.parse_comparison, Precedences.L, Associativity.LEFT),
             TokenType.GE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
+            TokenType.DOT: (self.parse_infix_string_operator, Precedences.DOT, Associativity.LEFT),
             TokenType.LPAREN: (self.parse_call, Precedences.CALL, Associativity.LEFT)
         }
 
@@ -193,6 +195,11 @@ class Parser:
         right = self.parse_expr(precedence)
         return LogicalBinary(left, token.token_type, right)
 
+    def parse_infix_string_operator(self, left, token, precedence, associativity):
+        precedence = precedence - (1 if associativity == Associativity.RIGHT else 0)
+        right = self.parse_expr(precedence)
+        return StringBinary(left, token.token_type, right)
+
     def parse_comparison(self, left, token, precedence, associativity):
         precedence = precedence - (1 if associativity == Associativity.RIGHT else 0)
         right = self.parse_expr(precedence)
@@ -210,15 +217,16 @@ class Parser:
         return FunCall(left, args)
 
 class Precedences:
-    OR = 1
-    AND = 2
-    EQUAL = 3
-    L = 4
-    PLUS = 5
-    MUL = 6
-    POW = 7
-    PREFIX = 8
-    CALL = 9
+    DOT = 1
+    OR = 2
+    AND = 3
+    EQUAL = 4
+    L = 5
+    PLUS = 6
+    MUL = 7
+    POW = 8
+    PREFIX = 9
+    CALL = 10
 
 Associativity = Enum('Associativity', 'LEFT RIGHT')
 

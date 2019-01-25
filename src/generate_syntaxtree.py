@@ -7,6 +7,7 @@ nodes = [
     'LogicalBinary left op right',
     'LogicalUnary op expr',
     'Comparison left op right',
+    'StringBinary left op right',
     'FunCall callee args',
     'Fun name args body',
     'Assign left right',

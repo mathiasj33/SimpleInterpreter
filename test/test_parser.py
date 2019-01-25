@@ -206,16 +206,78 @@ class TestParser(TestCase):
             )
         self.assertEqual(tree, parser.parse_expr())
 
+    def test_strings(self):
+        # x . ('test' . '123') . ''
+        tokens = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.DOT, '.', None, 1),
+                  MyToken(TokenType.LPAREN, '(', '(', 1), MyToken(TokenType.STRING, 'test', 'test', 1),
+                  MyToken(TokenType.DOT, '.', None, 1), MyToken(TokenType.STRING, '123', '123', 1),
+                  MyToken(TokenType.RPAREN, ')', ')', 1), MyToken(TokenType.DOT, '.', None, 1),
+                  MyToken(TokenType.STRING, '', '', 1)]
+        parser = Parser(tokens)
+        tree = \
+            StringBinary(
+                StringBinary(
+                    Identifier('x'),
+                    TokenType.DOT,
+                    Grouping(
+                        StringBinary(
+                            Literal('test'),
+                            TokenType.DOT,
+                            Literal('123')
+                        )
+                    )
+                ),
+                TokenType.DOT,
+                Literal('')
+            )
+        self.assertEqual(tree, parser.parse_expr())
+
+        # 'asd' . 5 + 3 . true and false . x
+        tokens = \
+            [MyToken(TokenType.STRING, 'asd', 'asd', 1), MyToken(TokenType.DOT, '.', None, 1),
+             MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.PLUS, '+', None, 1),
+             MyToken(TokenType.NUMBER, '3', 3, 1), MyToken(TokenType.DOT, '.', None, 1),
+             MyToken(TokenType.TRUE, 'true', True, 1), MyToken(TokenType.AND, 'and', None, 1),
+             MyToken(TokenType.FALSE, 'false', False, 1), MyToken(TokenType.DOT, '.', None, 1),
+             MyToken(TokenType.IDENT, 'x', 'x', 1)]
+        tree = \
+            StringBinary(
+                StringBinary(
+                    StringBinary(
+                        Literal('asd'),
+                        TokenType.DOT,
+                        Binary(
+                            Literal(5),
+                            TokenType.PLUS,
+                            Literal(3)
+                        )
+                    ),
+                    TokenType.DOT,
+                    LogicalBinary(
+                        Literal(True),
+                        TokenType.AND,
+                        Literal(False)
+                    )
+                ),
+                TokenType.DOT,
+                Identifier('x')
+            )
+        parser = Parser(tokens)
+        self.assertEqual(tree, parser.parse_expr())
+
     def test_assignment(self):
-        # x := 5\ny := not b + 7
+        # x := 5\ny := not b + 7\ny := 'asd'.'123'
         tokens = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.ASSIGN, ':=', None, 1), MyToken(TokenType.NUMBER, '5', 5, 1),
                   MyToken(TokenType.EOL, 'None', None, 1), MyToken(TokenType.IDENT, 'y', 'y', 2), MyToken(TokenType.ASSIGN, ':=', None, 2),
                   MyToken(TokenType.NOT, 'not', None, 2), MyToken(TokenType.IDENT, 'b', 'b', 2), MyToken(TokenType.PLUS, '+', None, 2),
-                  MyToken(TokenType.NUMBER, '7', 7, 2)]
+                  MyToken(TokenType.NUMBER, '7', 7, 2), MyToken(TokenType.EOL, 'None', None, 2),
+                  MyToken(TokenType.IDENT, 'y', 'y', 3), MyToken(TokenType.ASSIGN, ':=', None, 3),
+                  MyToken(TokenType.STRING, 'asd', 'asd', 3), MyToken(TokenType.DOT, '.', None, 3), MyToken(TokenType.STRING, '123', '123', 3)]
         parser = Parser(tokens)
         tree = \
         Program([Assign(Identifier('x'), Literal(5)),
-         Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7)))])
+         Assign(Identifier('y'), Binary(LogicalUnary(TokenType.NOT, Identifier('b')), TokenType.PLUS, Literal(7))),
+         Assign(Identifier('y'), StringBinary(Literal('asd'), TokenType.DOT, Literal('123')))])
         self.assertEqual(tree, parser.parse())
 
     def test_expr_stmt(self):
