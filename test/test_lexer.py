@@ -20,6 +20,13 @@ class TestLexer(TestCase):
                     MyToken(TokenType.NUMBER, '12', 12, 2)]
         self.assertEqual(expected, lexer.lex())
 
+    def test_strings(self):
+        lexer = Lexer('\'try\' try \'if}\'.\'  asd\' \'\'')
+        expected = [MyToken(TokenType.STRING, 'try', 'try', 1), MyToken(TokenType.IDENT, 'try', 'try', 1),
+                    MyToken(TokenType.STRING, 'if}', 'if}', 1), MyToken(TokenType.DOT, '.', None, 1),
+                    MyToken(TokenType.STRING, '  asd', '  asd', 1), MyToken(TokenType.STRING, '', '', 1)]
+        self.assertEqual(expected, lexer.lex())
+
     def test_identifiers(self):
         lexer = Lexer('x + 7 - test123( 18 x x18 /_try-')
         expected = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.PLUS, '+', None, 1),

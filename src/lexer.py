@@ -20,6 +20,7 @@ class Lexer:
             '<': TokenType.L,
             '>': TokenType.G,
             ',': TokenType.COMMA,
+            '.': TokenType.DOT,
             '\n': TokenType.EOL
         }
         self.keywords = {
@@ -74,6 +75,14 @@ class Lexer:
             self.line += 1
         return token
 
+    def match_string(self):
+        text = ''
+        self.index += 1
+        while self.index < len(self.prog) and self.current() != '\'':
+            text += self.current()
+            self.index += 1
+        return MyToken(TokenType.STRING, text, text, self.line)
+
     def match_ident_or_keyword(self):
         text = ''
         while self.index < len(self.prog) and self.is_valid_ident_char():
@@ -97,6 +106,8 @@ class Lexer:
                 tokens.append(self.match_number())
             elif c in self.char_to_token_type:
                 tokens.append(self.match_char())
+            elif c == '\'':
+                tokens.append(self.match_string())
             else:
                 tokens.append(self.match_ident_or_keyword())
             self.advance()
