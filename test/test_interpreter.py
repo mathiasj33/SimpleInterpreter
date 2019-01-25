@@ -119,47 +119,47 @@ class TestInterpreter(TestCase):
         self.assertEqual(False, interpreter.interpret_expr(tree))
 
     def test_strings(self):
-        # x . ('test' . '123') . ''
+        # x # ('test' # '123') # ''
         tree = \
             StringBinary(
                 StringBinary(
                     Identifier('x'),
-                    TokenType.DOT,
+                    TokenType.HASH,
                     Grouping(
                         StringBinary(
                             Literal('test'),
-                            TokenType.DOT,
+                            TokenType.HASH,
                             Literal('123')
                         )
                     )
                 ),
-                TokenType.DOT,
+                TokenType.HASH,
                 Literal('')
             )
         interpreter = Interpreter(Environment({'x': 'hello'}))
         self.assertEqual('hellotest123', interpreter.interpret_expr(tree))
 
-        # 'asd' . 5 + 3 . true and false . x
+        # 'asd' # 5 + 3 # true and false # x
         tree = \
             StringBinary(
                 StringBinary(
                     StringBinary(
                         Literal('asd'),
-                        TokenType.DOT,
+                        TokenType.HASH,
                         Binary(
                             Literal(5),
                             TokenType.PLUS,
                             Literal(3)
                         )
                     ),
-                    TokenType.DOT,
+                    TokenType.HASH,
                     LogicalBinary(
                         Literal(True),
                         TokenType.AND,
                         Literal(False)
                     )
                 ),
-                TokenType.DOT,
+                TokenType.HASH,
                 Identifier('x')
             )
         interpreter = Interpreter(Environment({'x': 'hello'}))
@@ -167,7 +167,7 @@ class TestInterpreter(TestCase):
 
         # 1.2
         tree = \
-            StringBinary(Literal(1), TokenType.DOT, Literal(2))
+            StringBinary(Literal(1), TokenType.HASH, Literal(2))
         interpreter = Interpreter()
         self.assertEqual('12', interpreter.interpret_expr(tree))
 
@@ -175,7 +175,7 @@ class TestInterpreter(TestCase):
         tree = \
             Program([Assign(Identifier('x'), Literal(5)),
                      Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True))),
-                     Assign(Identifier('z'), StringBinary(Literal('asd'), TokenType.DOT, Identifier('y')))])
+                     Assign(Identifier('z'), StringBinary(Literal('asd'), TokenType.HASH, Identifier('y')))])
         interpreter = Interpreter()
         env = interpreter.interpret(tree)
         self.assertEqual(5, env['x'])

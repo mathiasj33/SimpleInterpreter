@@ -21,9 +21,9 @@ class TestLexer(TestCase):
         self.assertEqual(expected, lexer.lex())
 
     def test_strings(self):
-        lexer = Lexer('\'try\' try \'if}\'.\'  asd\' \'\'')
+        lexer = Lexer('\'try\' try \'if}\'#\'  asd\' \'\'')
         expected = [MyToken(TokenType.STRING, 'try', 'try', 1), MyToken(TokenType.IDENT, 'try', 'try', 1),
-                    MyToken(TokenType.STRING, 'if}', 'if}', 1), MyToken(TokenType.DOT, '.', None, 1),
+                    MyToken(TokenType.STRING, 'if}', 'if}', 1), MyToken(TokenType.HASH, '#', None, 1),
                     MyToken(TokenType.STRING, '  asd', '  asd', 1), MyToken(TokenType.STRING, '', '', 1)]
         self.assertEqual(expected, lexer.lex())
 

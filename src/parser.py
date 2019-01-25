@@ -30,7 +30,7 @@ class Parser:
             TokenType.LE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
             TokenType.G: (self.parse_comparison, Precedences.L, Associativity.LEFT),
             TokenType.GE: (self.parse_comparison, Precedences.L, Associativity.LEFT),
-            TokenType.DOT: (self.parse_infix_string_operator, Precedences.DOT, Associativity.LEFT),
+            TokenType.HASH: (self.parse_infix_string_operator, Precedences.HASH, Associativity.LEFT),
             TokenType.LPAREN: (self.parse_call, Precedences.CALL, Associativity.LEFT)
         }
 
@@ -217,7 +217,7 @@ class Parser:
         return FunCall(left, args)
 
 class Precedences:
-    DOT = 1
+    HASH = 1
     OR = 2
     AND = 3
     EQUAL = 4

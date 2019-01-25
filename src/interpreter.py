@@ -117,7 +117,7 @@ class Interpreter:
         left = stringbinary.left.accept(self)
         right = stringbinary.right.accept(self)
         return {
-            TokenType.DOT: concat
+            TokenType.HASH: concat
         }[stringbinary.op](self.to_string(left), self.to_string(right))
 
     def to_string(self, value):

@@ -20,7 +20,7 @@ class Lexer:
             '<': TokenType.L,
             '>': TokenType.G,
             ',': TokenType.COMMA,
-            '.': TokenType.DOT,
+            '#': TokenType.HASH,
             '\n': TokenType.EOL
         }
         self.keywords = {
