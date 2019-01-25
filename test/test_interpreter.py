@@ -118,19 +118,75 @@ class TestInterpreter(TestCase):
         interpreter = Interpreter()
         self.assertEqual(False, interpreter.interpret_expr(tree))
 
+    def test_strings(self):
+        # x . ('test' . '123') . ''
+        tree = \
+            StringBinary(
+                StringBinary(
+                    Identifier('x'),
+                    TokenType.DOT,
+                    Grouping(
+                        StringBinary(
+                            Literal('test'),
+                            TokenType.DOT,
+                            Literal('123')
+                        )
+                    )
+                ),
+                TokenType.DOT,
+                Literal('')
+            )
+        interpreter = Interpreter(Environment({'x': 'hello'}))
+        self.assertEqual('hellotest123', interpreter.interpret_expr(tree))
+
+        # 'asd' . 5 + 3 . true and false . x
+        tree = \
+            StringBinary(
+                StringBinary(
+                    StringBinary(
+                        Literal('asd'),
+                        TokenType.DOT,
+                        Binary(
+                            Literal(5),
+                            TokenType.PLUS,
+                            Literal(3)
+                        )
+                    ),
+                    TokenType.DOT,
+                    LogicalBinary(
+                        Literal(True),
+                        TokenType.AND,
+                        Literal(False)
+                    )
+                ),
+                TokenType.DOT,
+                Identifier('x')
+            )
+        interpreter = Interpreter(Environment({'x': 'hello'}))
+        self.assertEqual('asd8falsehello', interpreter.interpret_expr(tree))
+
+        # 1.2
+        tree = \
+            StringBinary(Literal(1), TokenType.DOT, Literal(2))
+        interpreter = Interpreter()
+        self.assertEqual('12', interpreter.interpret_expr(tree))
+
     def test_assignment(self):
         tree = \
             Program([Assign(Identifier('x'), Literal(5)),
-             Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True)))])
+                     Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True))),
+                     Assign(Identifier('z'), StringBinary(Literal('asd'), TokenType.DOT, Identifier('y')))])
         interpreter = Interpreter()
         env = interpreter.interpret(tree)
         self.assertEqual(5, env['x'])
         self.assertEqual(True, env['y'])
+        self.assertEqual('asdtrue', env['z'])
 
     def test_print(self):
         tree = \
             Program([ExprStmt(FunCall(Identifier('print'), [Identifier('x')])), ExprStmt(FunCall(Identifier('print'),[
-                LogicalBinary(Identifier('y'), TokenType.AND, Literal(False))]))])
+                LogicalBinary(Identifier('y'), TokenType.AND, Literal(False))])),
+                     ExprStmt(FunCall(Identifier('print'), [Literal('asd')]))])
         env = {'x': 5, 'y': True}
         interpreter = Interpreter(env)
         saved_stdout = sys.stdout
@@ -139,7 +195,7 @@ class TestInterpreter(TestCase):
             sys.stdout = out
             self.assertEqual(env, interpreter.interpret(tree))
             output = out.getvalue().strip()
-            self.assertEqual(output, '5\nfalse')
+            self.assertEqual(output, '5\nfalse\nasd')
         finally:
             sys.stdout = saved_stdout
 

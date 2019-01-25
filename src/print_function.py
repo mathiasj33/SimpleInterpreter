@@ -6,9 +6,4 @@ class PrintFunction(Function):
 
     def call(self, interpreter, args):
         value = args[0].accept(interpreter)
-        if value is False:
-            print('false')
-        elif value is True:
-            print('true')
-        else:
-            print(value)
+        print(interpreter.to_string(value))

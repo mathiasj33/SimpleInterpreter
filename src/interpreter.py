@@ -3,7 +3,7 @@ from src.function import *
 from src.print_function import PrintFunction
 from src.mytoken import TokenType
 from src.environment import Environment
-from operator import add, sub, truediv, mul, pow, or_, and_, not_, lt, le, gt, ge, eq
+from operator import add, sub, truediv, mul, pow, or_, and_, not_, lt, le, gt, ge, eq, concat
 
 class Interpreter:
     def __init__(self, env=None):
@@ -112,3 +112,18 @@ class Interpreter:
             TokenType.GE: ge,
             TokenType.EQUAL: eq
         }[comparison.op](left, right)
+
+    def visit_stringbinary(self, stringbinary):
+        left = stringbinary.left.accept(self)
+        right = stringbinary.right.accept(self)
+        return {
+            TokenType.DOT: concat
+        }[stringbinary.op](self.to_string(left), self.to_string(right))
+
+    def to_string(self, value):
+        if value is False:
+            return 'false'
+        elif value is True:
+            return 'true'
+        else:
+            return str(value)
