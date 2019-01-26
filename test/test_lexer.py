@@ -20,6 +20,13 @@ class TestLexer(TestCase):
                     MyToken(TokenType.NUMBER, '12', 12, 2)]
         self.assertEqual(expected, lexer.lex())
 
+    def test_floats(self):
+        lexer = Lexer('4 + 12.3 - 3. .1')
+        expected = [MyToken(TokenType.NUMBER, '4', 4, 1), MyToken(TokenType.PLUS, '+', None, 1),
+                    MyToken(TokenType.NUMBER, '12.3', 12.3, 1), MyToken(TokenType.MINUS, '-', None, 1),
+                    MyToken(TokenType.NUMBER, '3.', 3., 1), MyToken(TokenType.NUMBER, '.1', .1, 1)]
+        self.assertEqual(expected, lexer.lex())
+
     def test_strings(self):
         lexer = Lexer('\'try\' try \'if}\'#\'  asd\' \'\'')
         expected = [MyToken(TokenType.STRING, 'try', 'try', 1), MyToken(TokenType.IDENT, 'try', 'try', 1),
