@@ -50,12 +50,12 @@ class TestInterpreter(TestCase):
         self.assertEqual(394, interpreter.interpret_expr(tree))
 
     def test_identifiers(self):
-        # 5 * x + test123 * (7 - asd)
+        # 5 ^ x + test123 * (7.2 - asd)
         tree = \
             Binary(
                 Binary(
                     Literal(5),
-                    TokenType.MUL,
+                    TokenType.POW,
                     Identifier('x')
                 ),
                 TokenType.PLUS,
@@ -64,16 +64,16 @@ class TestInterpreter(TestCase):
                     TokenType.MUL,
                     Grouping(
                         Binary(
-                            Literal(7),
+                            Literal(7.2),
                             TokenType.MINUS,
                             Identifier('asd')
                         )
                     )
                 )
             )
-        env = {'x': 2, 'test123': 7, 'asd': -3}
+        env = {'x': -1, 'test123': 7, 'asd': -3}
         interpreter = Interpreter(env)
-        self.assertEqual(80, interpreter.interpret_expr(tree))
+        self.assertAlmostEqual(71.6, interpreter.interpret_expr(tree))
 
     def test_booleans(self):
         # not true and false or not false
@@ -173,12 +173,12 @@ class TestInterpreter(TestCase):
 
     def test_assignment(self):
         tree = \
-            Program([Assign(Identifier('x'), Literal(5)),
+            Program([Assign(Identifier('x'), Literal(5.2)),
                      Assign(Identifier('y'), LogicalBinary(LogicalUnary(TokenType.NOT, Literal(True)), TokenType.OR, Literal(True))),
                      Assign(Identifier('z'), StringBinary(Literal('asd'), TokenType.HASH, Identifier('y')))])
         interpreter = Interpreter()
         env = interpreter.interpret(tree)
-        self.assertEqual(5, env['x'])
+        self.assertAlmostEqual(5.2, env['x'])
         self.assertEqual(True, env['y'])
         self.assertEqual('asdtrue', env['z'])
 
