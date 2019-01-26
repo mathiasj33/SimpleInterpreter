@@ -5,9 +5,9 @@ from src.mytoken import MyToken, TokenType
 
 class TestParser(TestCase):
     def test_arithmetic(self):
-        # 5 * 2 + 3 * 8 ^ 4 ^ - 2 * 2 - (1 / 3 - 2)
+        # 5 * 2.2 + 3 * 8 ^ 4 ^ - 2 * 2 - (1 / 3 - 2)
         tokens = [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.MUL, '*', None, 1),
-                  MyToken(TokenType.NUMBER, '2', 2, 1), MyToken(TokenType.PLUS, '+', None, 1),
+                  MyToken(TokenType.NUMBER, '2.2', 2.2, 1), MyToken(TokenType.PLUS, '+', None, 1),
                   MyToken(TokenType.NUMBER, '3', 3, 1), MyToken(TokenType.MUL, '*', None, 1),
                   MyToken(TokenType.NUMBER, '8', 8, 1), MyToken(TokenType.POW, '^', None, 1),
                   MyToken(TokenType.NUMBER, '4', 4, 1), MyToken(TokenType.POW, '^', None, 1),
@@ -25,7 +25,7 @@ class TestParser(TestCase):
                     Binary(
                         Literal(5),
                         TokenType.MUL,
-                        Literal(2)
+                        Literal(2.2)
                     ),
                     TokenType.PLUS,
                     Binary(
@@ -66,12 +66,12 @@ class TestParser(TestCase):
         self.assertEqual(tree, parser.parse_expr())
 
     def test_identifiers(self):
-        # 5 * x + test123 * (7 - asd)
+        # 5 * x + test123 * (.32 - asd)
         tokens = [MyToken(TokenType.NUMBER, '5', 5, 1), MyToken(TokenType.MUL, '*', None, 1),
                   MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.PLUS, '+', None, 1),
                   MyToken(TokenType.IDENT, 'test123', 'test123', 1), MyToken(TokenType.MUL, '*', None, 1),
                   MyToken(TokenType.LPAREN, '(', None, 1),
-                  MyToken(TokenType.NUMBER, '7', 7, 1), MyToken(TokenType.MINUS, '-', None, 1),
+                  MyToken(TokenType.NUMBER, '.32', .32, 1), MyToken(TokenType.MINUS, '-', None, 1),
                   MyToken(TokenType.IDENT, 'asd', 'asd', 1), MyToken(TokenType.RPAREN, ')', None, 1)]
         parser = Parser(tokens)
         tree = \
@@ -87,7 +87,7 @@ class TestParser(TestCase):
                     TokenType.MUL,
                     Grouping(
                         Binary(
-                            Literal(7),
+                            Literal(.32),
                             TokenType.MINUS,
                             Identifier('asd')
                         )
@@ -266,7 +266,7 @@ class TestParser(TestCase):
         self.assertEqual(tree, parser.parse_expr())
 
     def test_assignment(self):
-        # x := 5\ny := not b + 7\ny := 'asd'.'123'
+        # x := 5\ny := not b + 7\ny := 'asd' # '123'
         tokens = [MyToken(TokenType.IDENT, 'x', 'x', 1), MyToken(TokenType.ASSIGN, ':=', None, 1), MyToken(TokenType.NUMBER, '5', 5, 1),
                   MyToken(TokenType.EOL, 'None', None, 1), MyToken(TokenType.IDENT, 'y', 'y', 2), MyToken(TokenType.ASSIGN, ':=', None, 2),
                   MyToken(TokenType.NOT, 'not', None, 2), MyToken(TokenType.IDENT, 'b', 'b', 2), MyToken(TokenType.PLUS, '+', None, 2),
@@ -295,12 +295,12 @@ class TestParser(TestCase):
         self.assertEqual(tree, parser.parse())
 
     def test_control_structures(self):
-        # if x {y\nx := 6}\nif x < 3 {\nx := 3\n} else if t {\nx := 7\n} else \n{t\n}\nwhile not (x + y = 3) {x\nt\n}\n
+        # if x {y\nx := 6.2}\nif x < 3 {\nx := 3\n} else if t {\nx := 7\n} else \n{t\n}\nwhile not (x + y = 3) {x\nt\n}\n
         tokens = [MyToken(TokenType.IF, 'if', None, 1), MyToken(TokenType.IDENT, 'x', 'x', 1),
                   MyToken(TokenType.LBRACE,'{', None, 1),
                   MyToken(TokenType.IDENT, 'y', 'y', 1), MyToken(TokenType.EOL, 'None', None, 1),
                   MyToken(TokenType.IDENT, 'x', 'x', 2), MyToken(TokenType.ASSIGN, ':=', None, 2),
-                  MyToken(TokenType.NUMBER, '6', 6, 2), MyToken(TokenType.RBRACE, '}', None, 2),
+                  MyToken(TokenType.NUMBER, '6.2', 6.2, 2), MyToken(TokenType.RBRACE, '}', None, 2),
                   MyToken(TokenType.EOL, 'None', None, 2), MyToken(TokenType.IF, 'if', None, 3),
                   MyToken(TokenType.IDENT, 'x', 'x', 3), MyToken(TokenType.L, '<', None, 3),
                   MyToken(TokenType.NUMBER, '3', 3, 3), MyToken(TokenType.LBRACE, '{', None, 3),
@@ -330,7 +330,7 @@ class TestParser(TestCase):
         Program([
             If(
                 Identifier('x'),
-                Program([ExprStmt(Identifier('y')), Assign(Identifier('x'), Literal(6))]),
+                Program([ExprStmt(Identifier('y')), Assign(Identifier('x'), Literal(6.2))]),
                 Program([])
             ),
             If(
