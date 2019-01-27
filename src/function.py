@@ -7,16 +7,14 @@ class Function:
         self.env = env
 
     def call(self, interpreter, args):
-        new_env = interpreter.begin_scope()
-        new_env.update(Environment({k:v for k,v in self.env.items() if Identifier(k) not in self.fun.args}))  # do not update the arguments
+        tmp = {}
         for i in range(len(self.fun.args)):
-            new_env[self.fun.args[i].name] = args[i].accept(interpreter)  # eager evaluation
+            tmp[self.fun.args[i].name] = args[i].accept(interpreter)  # eager evaluation
+        new_env = Environment(tmp, parent=self.env)
         try:
-            interpreter.interpret(self.fun.body)
+            interpreter.interpret(self.fun.body, env=new_env)
         except RetError as r:
             return r.value
-        finally:
-            interpreter.end_scope()
         return None
 
     def __eq__(self, other):

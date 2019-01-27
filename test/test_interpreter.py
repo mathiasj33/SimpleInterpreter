@@ -247,6 +247,58 @@ class TestInterpreter(TestCase):
         env = interpreter.interpret(tree)
         self.assertEqual(2, env['y'])
 
+        # x:=1\nfun f() {x := 2}\nf()
+        tree = \
+            Program([Assign(Identifier('x'), Literal(1)), Fun(Identifier('f'), [], Program([
+                Assign(Identifier('x'), Literal(2))
+            ])),ExprStmt(FunCall(Identifier('f'), []))])
+        interpreter = Interpreter()
+        env = interpreter.interpret(tree)
+        self.assertEqual(2, env['x'])
+
+        # a := 'global'\nb1 := '1'\n b2 := '2'\nfun outer() {fun showA() {ret a}\nb1 := showA()\na := 'inner'\nb2 := showA()}\nouter()
+        tree = \
+            Program([Assign(Identifier('a'), Literal(
+                'global')), Assign(Identifier('b1'), Literal(
+                '1')),Assign(Identifier('b2'), Literal(
+                '2')),Fun(Identifier('outer'), [],
+                                Program([Fun(Identifier('showA'), [], Program([Ret(Identifier('a'))])),
+                                         Assign(Identifier('b1'), FunCall(Identifier('showA'), [])),
+                                         Assign(Identifier('a'), Literal('inner')),
+                                         Assign(Identifier('b2'), FunCall(Identifier('showA'), []))])),
+                     ExprStmt(FunCall(Identifier('outer'), []))])
+        interpreter = Interpreter()
+        env = interpreter.interpret(tree)
+        self.assertEqual('global', env['b1'])
+        self.assertEqual('inner', env['b2'])
+
+        # fun f() {print(a)\na:=10}\na:=20\nf()\nprint(a)
+        tree = \
+            Program([Fun(Identifier('f'), [], Program(
+                [ExprStmt(FunCall(Identifier('print'), [Identifier('a')])), Assign(Identifier('a'), Literal(10))])),
+                     Assign(Identifier('a'), Literal(20)), ExprStmt(FunCall(Identifier('f'), [])),
+                     ExprStmt(FunCall(Identifier('print'), [Identifier('a')]))])
+        interpreter = Interpreter()
+        saved_stdout = sys.stdout
+        try:
+            out = StringIO()
+            sys.stdout = out
+            env = interpreter.interpret(tree)
+            output = out.getvalue().strip()
+            self.assertEqual('20\n10', output)
+        finally:
+            sys.stdout = saved_stdout
+
+        # fun f(x) {x := 10\nret x}\n x:=5\ny := f(x)
+        tree = \
+            Program([Fun(Identifier('f'), [Identifier('x')], Program([
+                Assign(Identifier('x'), Literal(10)), Ret(Identifier('x'))
+            ])), Assign(Identifier('x'), Literal(5)), Assign(Identifier('y'), FunCall(Identifier('f'), [Identifier('x')]))])
+        interpreter = Interpreter()
+        env = interpreter.interpret(tree)
+        self.assertEqual(5, env['x'])
+        self.assertEqual(10, env['y'])
+
     def test_functions_recursion(self):
         # fun f(a,b) {if a = 0 {ret b} else {ret f(a-1,b+1)}}\nx:=f(5,0)
         tree = \
@@ -345,6 +397,23 @@ class TestInterpreter(TestCase):
         env = interpreter.interpret(tree)
         self.assertEqual(5, env['a'])
         self.assertEqual(7, env['b'])
+
+        # fun counter() {i := 0\nfun count() {i := i+1\nret i}\n ret count}\nc := counter()\na := c()\nb := c()
+        tree = \
+            Program([Fun(Identifier('counter'), [], Program([Assign(Identifier('i'), Literal(0)),
+                                                             Fun(Identifier('count'), [], Program([Assign(
+                                                                 Identifier('i'),
+                                                                 Binary(Identifier('i'), TokenType.PLUS, Literal(1))),
+                                                                                                   Ret(Identifier(
+                                                                                                       'i'))])),
+                                                             Ret(Identifier('count'))])),
+                     Assign(Identifier('c'), FunCall(Identifier('counter'), [])),
+                     Assign(Identifier('a'), FunCall(Identifier('c'), [])),
+                     Assign(Identifier('b'), FunCall(Identifier('c'), []))])
+        interpreter = Interpreter()
+        env = interpreter.interpret(tree)
+        self.assertEqual(1, env['a'])
+        self.assertEqual(2, env['b'])
 
     def test_expression_statements(self):
         # fun f() {print(5)}\n10+4\nf()

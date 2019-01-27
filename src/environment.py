@@ -11,7 +11,16 @@ class Environment:
             return self.parent[item]
 
     def __setitem__(self, key, value):
-        self.env[key] = value
+        if key in self.env:
+            self.env[key] = value
+        else:
+            current = self
+            while current.parent is not None:
+                current = current.parent
+                if key in current.env:
+                    current.env[key] = value
+                    return
+            self.env[key] = value
 
     def __delitem__(self, key):
         del self.env[key]

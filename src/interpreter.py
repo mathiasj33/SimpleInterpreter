@@ -21,8 +21,14 @@ class Interpreter:
     def end_scope(self):
         self.environment = self.environment.parent
 
-    def interpret(self, program):
-        program.accept(self)
+    def interpret(self, program, env=None):
+        previous = self.environment
+        if env is not None:
+            self.environment = env
+        try:
+            program.accept(self)
+        finally:
+            self.environment = previous
         return self.environment
 
     def visit_program(self, program):
